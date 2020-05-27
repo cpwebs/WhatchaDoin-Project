@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:WhatchaDoin"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"    
         mc:Ignorable="d"
-        MinHeight="600" MinWidth="900" Height="600" Width="900" WindowStartupLocation="CenterScreen" WindowStyle="None" ResizeMode="CanResize">
+        MinHeight="600" MinWidth="900" Height="600" Width="900" WindowStyle="None" ResizeMode="CanResize">
 
     <!--Add the WindowChrome object-->
     <WindowChrome.WindowChrome>

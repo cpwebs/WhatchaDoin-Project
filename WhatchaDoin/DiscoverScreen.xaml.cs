@@ -27,6 +27,18 @@ namespace WhatchaDoin
 
         }
 
+        private void selectedDate(object sender, SelectionChangedEventArgs e)
+        {
+            if (MessageBox.Show("Do you want to add an event?", "Confirmation", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+            {
+                // add event
+            }
+            else
+            {
+                // cancel
+            }
+        }
+
         private void CommandBinding_CanExecute(object sender, CanExecuteRoutedEventArgs e)
         {
             e.CanExecute = true;
@@ -79,26 +91,61 @@ namespace WhatchaDoin
             {
                 case "Home":
                     MainWindow main = new MainWindow(username);
+                    main.Height = this.ActualHeight;
+                    main.Width = this.ActualWidth;
+                    main.WindowStartupLocation = this.WindowStartupLocation;
+                    if (this.WindowState == System.Windows.WindowState.Maximized)
+                    {
+                        main.WindowState = System.Windows.WindowState.Maximized;
+                    }
                     main.Show();
                     this.Close();
                     break;
                 case "Events":
                     EventScreen events = new EventScreen(username);
+                    events.Height = this.ActualHeight;
+                    events.Width = this.ActualWidth;
+                    events.WindowStartupLocation = this.WindowStartupLocation;
+                    if (this.WindowState == System.Windows.WindowState.Maximized)
+                    {
+                        events.WindowState = System.Windows.WindowState.Maximized;
+                    }
                     events.Show();
                     this.Close();
                     break;
                 case "Friends":
                     FriendScreen friend = new FriendScreen(username);
+                    friend.Height = this.ActualHeight;
+                    friend.Width = this.ActualWidth;
+                    friend.WindowStartupLocation = this.WindowStartupLocation;
+                    if (this.WindowState == System.Windows.WindowState.Maximized)
+                    {
+                        friend.WindowState = System.Windows.WindowState.Maximized;
+                    }
                     friend.Show();
                     this.Close();
                     break;
                 case "Discover":
                     DiscoverScreen discover = new DiscoverScreen(username);
+                    discover.Height = this.ActualHeight;
+                    discover.Width = this.ActualWidth;
+                    discover.WindowStartupLocation = this.WindowStartupLocation;
+                    if (this.WindowState == System.Windows.WindowState.Maximized)
+                    {
+                        discover.WindowState = System.Windows.WindowState.Maximized;
+                    }
                     discover.Show();
                     this.Close();
                     break;
                 case "Settings":
                     SettingsScreen settings = new SettingsScreen(username);
+                    settings.Height = this.ActualHeight;
+                    settings.Width = this.ActualWidth;
+                    settings.WindowStartupLocation = this.WindowStartupLocation;
+                    if (this.WindowState == System.Windows.WindowState.Maximized)
+                    {
+                        settings.WindowState = System.Windows.WindowState.Maximized;
+                    }
                     settings.Show();
                     this.Close();
                     break;
