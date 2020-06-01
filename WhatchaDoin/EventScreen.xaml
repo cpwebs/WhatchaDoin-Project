@@ -4,9 +4,9 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WhatchaDoin"
-        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"    
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes" xmlns:system="clr-namespace:System;assembly=System.Runtime"
         mc:Ignorable="d"
-        MinHeight="600" MinWidth="900" Height="600" Width="900" WindowStyle="None" ResizeMode="CanResize">
+        MinHeight="600" MinWidth="900" Height="600" Width="900" WindowStyle="None" ResizeMode="CanResize" >
 
     <!--Add the WindowChrome object-->
     <WindowChrome.WindowChrome>
@@ -49,6 +49,10 @@
                 </Setter>
             </Style>
 
+            <Style TargetType="CalendarDayButton">
+                <Setter Property="Margin"  Value="5,5,5,5"/>
+            </Style>
+
             <!--Minimize-->
             <Style x:Key="MinimizeButtonStyle" TargetType="Button" BasedOn="{StaticResource CaptionButtonStyle}">
                 <Setter Property="Content" Value="&#xE949;"/>
@@ -81,7 +85,7 @@
     </Window.CommandBindings>
 
     <!--Window as whole-->
-    <Border x:Name="MainWindowBorder" Background="#196862" BorderBrush="#FFF1BE" BorderThickness="0" >
+    <Border x:Name="MainWindowBorder" Background="#75B791" BorderBrush="#FFF1BE" BorderThickness="0" >
         <Grid x:Name="parentContainer">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition MinWidth="275" Width="275*"/>
@@ -91,6 +95,140 @@
             <Grid.RowDefinitions>
                 <RowDefinition MinHeight="600" Height="600*"/>
             </Grid.RowDefinitions>
+
+            <!--Menu bar-->
+            <Grid Grid.Column="0" Grid.Row="0" x:Name="GridMenu" HorizontalAlignment="Left" Background="#FFF1BE">
+                <ListView x:Name="ListViewMenu" Width="55" VerticalAlignment="Center" Foreground="#196862" ScrollViewer.HorizontalScrollBarVisibility="Disabled" SelectionChanged="ListViewMenu_SelectionChanged" Margin="0,0,0,0">
+                    <ListViewItem x:Name="Home" >
+                        <Grid>
+                            <materialDesign:PackIcon Kind="Home" Height="40" Width="35" Margin="0,0,0,0"/>
+                        </Grid>
+                    </ListViewItem>
+                    <ListViewItem x:Name="Events" >
+                        <Grid>
+                            <materialDesign:PackIcon Kind="Event" Height="40" Width="35" Margin="0,40,0,0"/>
+                        </Grid>
+                    </ListViewItem>
+                    <ListViewItem x:Name="Friends" >
+                        <Grid>
+                            <materialDesign:PackIcon Kind="People" Height="40" Width="35" Margin="0,40,0,0"/>
+                        </Grid>
+                    </ListViewItem>
+                    <ListViewItem x:Name="Discover">
+                        <Grid>
+                            <materialDesign:PackIcon Kind="Explore"  Height="40" Width="35" Margin="0,40,0,0"/>
+                        </Grid>
+                    </ListViewItem>
+                    <ListViewItem x:Name="Settings">
+                        <Grid>
+                            <materialDesign:PackIcon Kind="Settings" Height="40" Width="35" Margin="0,40,0,0"/>
+                        </Grid>
+                    </ListViewItem>
+                    <ListViewItem x:Name="Logout">
+                        <Grid>
+                            <materialDesign:PackIcon Kind="Logout" Height="35" Width="35" Margin="0,40,0,0"/>
+                        </Grid>
+                    </ListViewItem>
+                </ListView>
+            </Grid>
+
+            <ScrollViewer Grid.Column="0" Grid.Row="0" Margin="55,0,0,20" VerticalAlignment="Top" Background="#75B791">
+                <Viewbox>
+                    <StackPanel Orientation="Vertical" Margin="5,0,0,20" VerticalAlignment="Top">
+                        <Label Content="Activity" Foreground="#FFFDF2" FontWeight="Bold" FontSize="15" HorizontalAlignment="Center" Margin="0,15,0,0"/>
+                        <TextBox x:Name="txtActivity" Margin="15,5,15,0" Background="White"/>
+                        <Label Content="Date" Foreground="#FFFDF2" FontWeight="Bold" FontSize="15" HorizontalAlignment="Center" Margin="0,25,0,0"/>
+                        <DatePicker x:Name="dp" Margin="15,5,15,0" Background="White" Width="173" Height="30"/>
+                        <Label Content="Time" Foreground="#FFFDF2" FontWeight="Bold" FontSize="15" HorizontalAlignment="Center" Margin="0,25,0,0"/>
+                        <materialDesign:TimePicker x:Name="timeSet" Margin="15,5,15,0" Background="White"/>
+                        <Label Content="Budget" Foreground="#FFFDF2" FontWeight="Bold" FontSize="15" HorizontalAlignment="Center" Margin="0,25,0,0"/>
+                        <TextBox x:Name="budget" Margin="15,5,15,0" Background="White"/>
+                        <Label Content="Reservations" Foreground="#FFFDF2" FontWeight="Bold" FontSize="15" HorizontalAlignment="Center" Margin="0,25,0,0"/>
+                        <!--<TextBox  Margin="15,0,15,0" Background="White"/>-->
+                        <ComboBox x:Name="reserve" Margin="15,5,15,0" Foreground="Black" Background="White">
+                            <ComboBoxItem Content = "Yes" />
+                            <ComboBoxItem Content = "No"/>
+                            <ComboBoxItem Content = "Not Needed"/>
+                        </ComboBox>
+                        <Label Content="Supply List" Foreground="#FFFDF2" FontWeight="Bold" FontSize="15" HorizontalAlignment="Center" Margin="0,25,0,0"/>
+                        <DataGrid x:Name="grdSupply" AutoGenerateColumns="False" Height="100"  Margin="15,5,15,0" HeadersVisibility="None" HorizontalScrollBarVisibility="Hidden" Background="#FFF1BE" RowBackground="#FFFDF2" AlternatingRowBackground="#FFF1BE" IsReadOnly="True" CanUserAddRows="False" CanUserDeleteRows="False" BorderThickness="1" BorderBrush="#545d6a" MouseDoubleClick="supplyDoubleClick">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Binding="{Binding Supplies}" />
+                            </DataGrid.Columns>
+                            <DataGrid.CellStyle>
+                                <Style TargetType="DataGridCell"  >
+                                    <Style.Triggers>
+                                        <Trigger Property="IsSelected" Value="True">
+                                            <Setter Property="Background" Value="#75B791"/>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </DataGrid.CellStyle>
+                        </DataGrid>
+                        <TextBox x:Name="testS" Margin="15,5,15,0" Background="White"/>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                            <Button Content="Add Item  " Background="White" FontSize="10" Margin="0,5,0,0" HorizontalAlignment="Center" Click="addSupply"/>
+                            <Button Content="Delete Item  " Background="White" FontSize="10" Margin="0,5,0,0" HorizontalAlignment="Center" Click="deleteSupply"/>
+                        </StackPanel>
+                        <Label Content="Friends List" Foreground="#FFFDF2" FontWeight="Bold" FontSize="15" HorizontalAlignment="Center" Margin="0,25,0,0"/>
+                        <DataGrid x:Name="grdFriends" AutoGenerateColumns="False" Height="100"  Margin="15,5,15,0" HeadersVisibility="None" HorizontalScrollBarVisibility="Hidden" Background="#FFF1BE" RowBackground="#FFFDF2" AlternatingRowBackground="#FFF1BE" IsReadOnly="True" CanUserAddRows="False" CanUserDeleteRows="False" BorderThickness="1" BorderBrush="#545d6a" MouseDoubleClick="friendDoubleClick">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Binding="{Binding Friends}" />
+                            </DataGrid.Columns>
+                            <DataGrid.CellStyle>
+                                <Style TargetType="DataGridCell"  >
+                                    <Style.Triggers>
+                                        <Trigger Property="IsSelected" Value="True">
+                                            <Setter Property="Background" Value="#75B791"/>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </DataGrid.CellStyle>
+                        </DataGrid>
+                        <TextBox x:Name="testF"  Margin="15,5,15,0" Background="White"/>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                            <Button Content="Add Friend" Background="White" FontSize="10" Margin="0,5,0,0" HorizontalAlignment="Center" Click="addFriend"/>
+                            <Button Content="Delete Friend" Background="White" FontSize="10" Margin="0,5,0,0" HorizontalAlignment="Center" Click="deleteFriend"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,40,0,0">
+                            <Button Content="Add&#xa;Event" Background="White" Height="50" FontSize="10" Click="addEvent"/>
+                            <Button Content="Delete&#xa;Event" Background="White" Height="50" FontSize="10" Click="deleteEvent"/>
+                            <Button Content="Clear" Background="White" Height="50" FontSize="10" Click="clear_Fields" />
+                        </StackPanel>
+                    </StackPanel>
+                </Viewbox>
+            </ScrollViewer>
+
+            <Grid Grid.Column="1" Grid.Row="0" Background="#FFF1BE" Margin="0,25,0,25">
+                <Viewbox>
+                    <Calendar x:Name="calendar" SelectedDatesChanged="selectedDate" Background="#FFF1BE" IsTodayHighlighted="False">
+                        <Calendar.CalendarDayButtonStyle>
+                            <Style TargetType="CalendarDayButton" BasedOn="{StaticResource {x:Type CalendarDayButton}}">
+                                <EventSetter Event="Loaded" Handler="calendarButton_Loaded" />
+                            </Style>
+                        </Calendar.CalendarDayButtonStyle>
+                    </Calendar>
+                </Viewbox>
+            </Grid>
+
+            <Grid Grid.Column="2" Grid.Row="0">
+                <DataGrid Name="grdBucketlist" CanUserSortColumns="True" AutoGenerateColumns="False" MinColumnWidth="400" Margin="25,100,25,25" HeadersVisibility="None" HorizontalScrollBarVisibility="Hidden" Background="#FFF1BE" RowBackground="#FFFDF2" AlternatingRowBackground="#FFF1BE" MinRowHeight="40" IsReadOnly="True" CanUserAddRows="False" CanUserDeleteRows="False" BorderThickness="1"  BorderBrush="#545d6a" MouseDoubleClick="dataGrid_MouseDoubleClick">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Binding="{Binding Activity}" />
+                    </DataGrid.Columns>
+                    <DataGrid.CellStyle>
+                        <Style TargetType="DataGridCell"  >
+                            <Style.Triggers>
+                                <Trigger Property="IsSelected" Value="True">
+                                    <Setter Property="Background" Value="#75B791"/>
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </DataGrid.CellStyle>
+                </DataGrid>
+                <Label Content="Quick View" HorizontalAlignment="Center" Foreground="#FFFDF2" FontWeight="Bold" FontSize="25" Margin="0,50,0,0" VerticalAlignment="Top"/>
+                <Separator Height="1" VerticalAlignment="Top" Margin="50,90,50,0"/>
+            </Grid>
 
             <!--Caption buttons-->
             <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right"  VerticalAlignment="Top" Width="140" Height="40" Background="#FFF1BE">
@@ -104,94 +242,6 @@
                             Command="{x:Static SystemCommands.CloseWindowCommand}"/>
             </StackPanel>
 
-            <!--Menu bar-->
-            <Grid Grid.Column="0" Grid.Row="0" x:Name="GridMenu" HorizontalAlignment="Left" Background="#FFF1BE">
-                <ListView x:Name="ListViewMenu" Width="55"  Foreground="#196862" ScrollViewer.HorizontalScrollBarVisibility="Disabled" SelectionChanged="ListViewMenu_SelectionChanged" Margin="0,40,0,0">
-                    <ListViewItem x:Name="Home" >
-                        <Grid>
-                            <materialDesign:PackIcon Kind="Home" Height="40" Width="35" Margin="0,20,0,0"/>
-                        </Grid>
-                    </ListViewItem>
-                    <ListViewItem x:Name="Events" >
-                        <Grid>
-                            <materialDesign:PackIcon Kind="Event" Height="40" Width="35" Margin="0,20,0,0"/>
-                        </Grid>
-                    </ListViewItem>
-                    <ListViewItem x:Name="Friends" >
-                        <Grid>
-                            <materialDesign:PackIcon Kind="People" Height="40" Width="35" Margin="0,20,0,0"/>
-                        </Grid>
-                    </ListViewItem>
-                    <ListViewItem x:Name="Discover">
-                        <Grid>
-                            <materialDesign:PackIcon Kind="Explore"  Height="40" Width="35" Margin="0,20,0,0"/>
-                        </Grid>
-                    </ListViewItem>
-                    <ListViewItem x:Name="Settings">
-                        <Grid>
-                            <materialDesign:PackIcon Kind="Settings" Height="40" Width="35" Margin="0,20,0,0"/>
-                        </Grid>
-                    </ListViewItem>
-                    <ListViewItem x:Name="Logout">
-                        <Grid>
-                            <materialDesign:PackIcon Kind="Logout" Height="35" Width="35" Margin="0,20,0,0"/>
-                        </Grid>
-                    </ListViewItem>
-                </ListView>
-            </Grid>
-
-            <ScrollViewer Grid.Column="0" Grid.Row="0" Margin="55,0,0,20" VerticalAlignment="Top">
-                <Viewbox>
-                    <StackPanel Orientation="Vertical" Margin="5,0,0,20" VerticalAlignment="Top">
-                        <Label Content="Activity" Foreground="#FFFDF2" FontWeight="Bold" FontSize="15" HorizontalAlignment="Center" Margin="0,15,0,0"/>
-                        <TextBox  Margin="15,0,15,0" Background="White"/>
-                        <Label Content="Date" Foreground="#FFFDF2" FontWeight="Bold" FontSize="15" HorizontalAlignment="Center" Margin="0,25,0,0"/>
-                        <DatePicker Margin="15,0,15,0" Background="White" Width="173" Height="30"/>
-                        <Label Content="Time" Foreground="#FFFDF2" FontWeight="Bold" FontSize="15" HorizontalAlignment="Center" Margin="0,25,0,0"/>
-                        <TextBox  Margin="15,0,15,0" Background="White"/>
-                        <Label Content="Budget" Foreground="#FFFDF2" FontWeight="Bold" FontSize="15" HorizontalAlignment="Center" Margin="0,25,0,0"/>
-                        <TextBox  Margin="15,0,15,0" Background="White"/>
-                        <Label Content="Reservations" Foreground="#FFFDF2" FontWeight="Bold" FontSize="15" HorizontalAlignment="Center" Margin="0,25,0,0"/>
-                        <TextBox  Margin="15,0,15,0" Background="White"/>
-                        <Label Content="Supplies" Foreground="#FFFDF2" FontWeight="Bold" FontSize="15" HorizontalAlignment="Center" Margin="0,25,0,0"/>
-                        <TextBox  Margin="15,0,15,0" Background="White"/>
-                        <Button Content="Add Supply" Background="White" FontSize="10" Margin="0,5,0,0" HorizontalAlignment="Center"/>
-                        <DataGrid Height="25"  Margin="15,5,15,0" />
-                        <Button Content="Delete Supply" Background="White" FontSize="10" Margin="0,5,0,0" HorizontalAlignment="Center"/>
-                        <Label Content="Friends" Foreground="#FFFDF2" FontWeight="Bold" FontSize="15" HorizontalAlignment="Center" Margin="0,25,0,0"/>
-                        <TextBox  Margin="15,0,15,0" Background="White"/>
-                        <Button Content="Add Friend" Background="White" FontSize="10" Margin="0,5,0,0" HorizontalAlignment="Center"/>
-                        <DataGrid Height="25"  Margin="15,5,15,0" />
-                        <Button Content="Delete Friend" Background="White" FontSize="10" Margin="0,5,0,0" HorizontalAlignment="Center"/>
-                        <Button Content="Add Event" Background="White" FontSize="10" Margin="0,30,0,0"/>
-                        <Button Content="Delete Event" Background="White" FontSize="10"/>
-                        <Button Content="Clear" Background="White" FontSize="10"/>
-                    </StackPanel>
-                </Viewbox>
-            </ScrollViewer>
-
-            <Grid Grid.Column="1" Grid.Row="0" Background="#FFF1BE" Margin="0,25,0,25">
-                <Viewbox>
-                    <Calendar SelectedDatesChanged="selectedDate" Background="#FFF1BE" Margin="0,15,0,15" />
-                </Viewbox>
-            </Grid>
-
-            <Grid Grid.Column="2" Grid.Row="0">
-                <DataGrid Name="grdBucketlist"  Margin="25,100,25,25" HeadersVisibility="None" ColumnWidth="*" HorizontalScrollBarVisibility="Hidden" Background="#F0DD94" RowBackground="#FFFDF2" AlternatingRowBackground="#FFF1BE" MinRowHeight="40" CanUserAddRows="False" CanUserDeleteRows="False" BorderThickness="1" BorderBrush="#545d6a">
-                    <DataGrid.CellStyle>
-                        <Style TargetType="DataGridCell" >
-                            <Style.Triggers>
-                                <Trigger Property="IsSelected" Value="True">
-                                    <Setter Property="Background" Value="#75B791"/>
-                                </Trigger>
-                            </Style.Triggers>
-                        </Style>
-                    </DataGrid.CellStyle>
-                </DataGrid>
-                <Label Content="Quick View" HorizontalAlignment="Center" Foreground="#FFFDF2" FontWeight="Bold" FontSize="25" Margin="0,50,0,0" VerticalAlignment="Top"/>
-                <Separator Height="1" VerticalAlignment="Top" Margin="50,90,50,0"/>
-            </Grid>
-            
         </Grid>
     </Border>
 </Window>

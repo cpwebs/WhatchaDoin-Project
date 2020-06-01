@@ -11,23 +11,43 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using System.Data;
 using System.Data.SqlClient;
+using System.Windows.Controls.Primitives;
+using System.Drawing;
 
 namespace WhatchaDoin
 {
-    /// <summary>
-    /// Interaction logic for FriendScreen.xaml
-    /// </summary>
+
     public partial class FriendScreen : Window
+
     {
-        public string username;
+        private List<DateTime> significantDates = new List<DateTime>();
+        private string username;
 
         public FriendScreen(string user)
         {
             username = user;
             InitializeComponent();
             FillDataGrid();
+            retrieveDatesToDisplay();
             StateChanged += MainWindowStateChangeRaised;
+        }
 
+        private void retrieveDatesToDisplay()
+        {
+            using (SqlConnection cnn = new SqlConnection(@"Data Source=(localdb)\MSSQLLocalDB; Initial Catalog=LoginDB; Integrated Security=True;"))
+            {
+                cnn.Open();
+                using (SqlCommand c = new SqlCommand("SELECT Date from BucketList", cnn))
+                {
+                    using (SqlDataReader dr = c.ExecuteReader())
+                    {
+                        while (dr.Read())
+                        {
+                            significantDates.Add(Convert.ToDateTime(dr[0]));
+                        }
+                    }
+                }
+            }
         }
 
         private void FillDataGrid()
@@ -111,10 +131,12 @@ namespace WhatchaDoin
                     MainWindow main = new MainWindow(username);
                     main.Height = this.ActualHeight;
                     main.Width = this.ActualWidth;
+                    main.Top = this.Top;
+                    main.Left = this.Left;
                     main.WindowStartupLocation = this.WindowStartupLocation;
-                    if (this.WindowState == System.Windows.WindowState.Maximized)
+                    if (this.WindowState == WindowState.Maximized)
                     {
-                        main.WindowState = System.Windows.WindowState.Maximized;
+                        main.WindowState = WindowState.Maximized;
                     }
                     main.Show();
                     this.Close();
@@ -123,10 +145,12 @@ namespace WhatchaDoin
                     EventScreen events = new EventScreen(username);
                     events.Height = this.ActualHeight;
                     events.Width = this.ActualWidth;
+                    events.Top = this.Top;
+                    events.Left = this.Left;
                     events.WindowStartupLocation = this.WindowStartupLocation;
-                    if (this.WindowState == System.Windows.WindowState.Maximized)
+                    if (this.WindowState == WindowState.Maximized)
                     {
-                        events.WindowState = System.Windows.WindowState.Maximized;
+                        events.WindowState = WindowState.Maximized;
                     }
                     events.Show();
                     this.Close();
@@ -135,10 +159,12 @@ namespace WhatchaDoin
                     FriendScreen friend = new FriendScreen(username);
                     friend.Height = this.ActualHeight;
                     friend.Width = this.ActualWidth;
+                    friend.Top = this.Top;
+                    friend.Left = this.Left;
                     friend.WindowStartupLocation = this.WindowStartupLocation;
-                    if (this.WindowState == System.Windows.WindowState.Maximized)
+                    if (this.WindowState == WindowState.Maximized)
                     {
-                        friend.WindowState = System.Windows.WindowState.Maximized;
+                        friend.WindowState = WindowState.Maximized;
                     }
                     friend.Show();
                     this.Close();
@@ -147,10 +173,12 @@ namespace WhatchaDoin
                     DiscoverScreen discover = new DiscoverScreen(username);
                     discover.Height = this.ActualHeight;
                     discover.Width = this.ActualWidth;
+                    discover.Top = this.Top;
+                    discover.Left = this.Left;
                     discover.WindowStartupLocation = this.WindowStartupLocation;
-                    if (this.WindowState == System.Windows.WindowState.Maximized)
+                    if (this.WindowState == WindowState.Maximized)
                     {
-                        discover.WindowState = System.Windows.WindowState.Maximized;
+                        discover.WindowState = WindowState.Maximized;
                     }
                     discover.Show();
                     this.Close();
@@ -159,10 +187,12 @@ namespace WhatchaDoin
                     SettingsScreen settings = new SettingsScreen(username);
                     settings.Height = this.ActualHeight;
                     settings.Width = this.ActualWidth;
+                    settings.Top = this.Top;
+                    settings.Left = this.Left;
                     settings.WindowStartupLocation = this.WindowStartupLocation;
-                    if (this.WindowState == System.Windows.WindowState.Maximized)
+                    if (this.WindowState == WindowState.Maximized)
                     {
-                        settings.WindowState = System.Windows.WindowState.Maximized;
+                        settings.WindowState = WindowState.Maximized;
                     }
                     settings.Show();
                     this.Close();
@@ -176,6 +206,29 @@ namespace WhatchaDoin
                 default:
                     break;
             }
+        }
+
+        private void calendarButton_Loaded(object sender, EventArgs e)
+        {
+            CalendarDayButton button = (CalendarDayButton)sender;
+            DateTime date = (DateTime)button.DataContext;
+            HighlightDay(button, date);
+            button.DataContextChanged += new DependencyPropertyChangedEventHandler(calendarButton_DataContextChanged);
+        }
+
+        private void HighlightDay(CalendarDayButton button, DateTime date)
+        {
+            if (significantDates.Contains(date))
+                button.Background = (SolidColorBrush)new BrushConverter().ConvertFromString("#75B791");
+            else
+                button.Background = (SolidColorBrush)new BrushConverter().ConvertFromString("#FFF1BE");
+        }
+
+        private void calendarButton_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            CalendarDayButton button = (CalendarDayButton)sender;
+            DateTime date = (DateTime)button.DataContext;
+            HighlightDay(button, date);
         }
     }
 }

@@ -93,6 +93,8 @@ namespace WhatchaDoin
                     MainWindow main = new MainWindow(username);
                     main.Height = this.ActualHeight;
                     main.Width = this.ActualWidth;
+                    main.Top = this.Top;
+                    main.Left = this.Left;
                     main.WindowStartupLocation = this.WindowStartupLocation;
                     if (this.WindowState == System.Windows.WindowState.Maximized)
                     {
@@ -105,6 +107,8 @@ namespace WhatchaDoin
                     EventScreen events = new EventScreen(username);
                     events.Height = this.ActualHeight;
                     events.Width = this.ActualWidth;
+                    events.Top = this.Top;
+                    events.Left = this.Left;
                     events.WindowStartupLocation = this.WindowStartupLocation;
                     if (this.WindowState == System.Windows.WindowState.Maximized)
                     {
@@ -117,6 +121,8 @@ namespace WhatchaDoin
                     FriendScreen friend = new FriendScreen(username);
                     friend.Height = this.ActualHeight;
                     friend.Width = this.ActualWidth;
+                    friend.Top = this.Top;
+                    friend.Left = this.Left;
                     friend.WindowStartupLocation = this.WindowStartupLocation;
                     if (this.WindowState == System.Windows.WindowState.Maximized)
                     {
@@ -129,6 +135,8 @@ namespace WhatchaDoin
                     DiscoverScreen discover = new DiscoverScreen(username);
                     discover.Height = this.ActualHeight;
                     discover.Width = this.ActualWidth;
+                    discover.Top = this.Top;
+                    discover.Left = this.Left;
                     discover.WindowStartupLocation = this.WindowStartupLocation;
                     if (this.WindowState == System.Windows.WindowState.Maximized)
                     {
@@ -141,6 +149,8 @@ namespace WhatchaDoin
                     SettingsScreen settings = new SettingsScreen(username);
                     settings.Height = this.ActualHeight;
                     settings.Width = this.ActualWidth;
+                    settings.Top = this.Top;
+                    settings.Left = this.Left;
                     settings.WindowStartupLocation = this.WindowStartupLocation;
                     if (this.WindowState == System.Windows.WindowState.Maximized)
                     {

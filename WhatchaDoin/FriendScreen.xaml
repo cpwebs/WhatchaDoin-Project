@@ -48,6 +48,10 @@
                     </Setter.Value>
                 </Setter>
             </Style>
+            
+            <Style TargetType="CalendarDayButton">
+                <Setter Property="Margin"  Value="5,5,5,5"/>
+            </Style>
 
             <!--Minimize-->
             <Style x:Key="MinimizeButtonStyle" TargetType="Button" BasedOn="{StaticResource CaptionButtonStyle}">
@@ -81,7 +85,7 @@
     </Window.CommandBindings>
 
     <!--Window as whole-->
-    <Border x:Name="MainWindowBorder" Background="#196862" BorderBrush="#FFF1BE" BorderThickness="0" >
+    <Border x:Name="MainWindowBorder" Background="#75B791" BorderBrush="#FFF1BE" BorderThickness="0" >
         <Grid x:Name="parentContainer">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition MinWidth="275" Width="275*"/>
@@ -106,48 +110,54 @@
 
             <!--Menu bar-->
             <Grid Grid.Column="0" Grid.Row="0" x:Name="GridMenu" HorizontalAlignment="Left" Background="#FFF1BE">
-                <ListView x:Name="ListViewMenu" Width="55"  Foreground="#196862" ScrollViewer.HorizontalScrollBarVisibility="Disabled" SelectionChanged="ListViewMenu_SelectionChanged" Margin="0,40,0,0">
+                <ListView x:Name="ListViewMenu" Width="55" VerticalAlignment="Center" Foreground="#196862" ScrollViewer.HorizontalScrollBarVisibility="Disabled" SelectionChanged="ListViewMenu_SelectionChanged" Margin="0,0,0,0">
                     <ListViewItem x:Name="Home" >
                         <Grid>
-                            <materialDesign:PackIcon Kind="Home" Height="40" Width="35" Margin="0,20,0,0"/>
+                            <materialDesign:PackIcon Kind="Home" Height="40" Width="35" Margin="0,0,0,0"/>
                         </Grid>
                     </ListViewItem>
                     <ListViewItem x:Name="Events" >
                         <Grid>
-                            <materialDesign:PackIcon Kind="Event" Height="40" Width="35" Margin="0,20,0,0"/>
+                            <materialDesign:PackIcon Kind="Event" Height="40" Width="35" Margin="0,40,0,0"/>
                         </Grid>
                     </ListViewItem>
                     <ListViewItem x:Name="Friends" >
                         <Grid>
-                            <materialDesign:PackIcon Kind="People" Height="40" Width="35" Margin="0,20,0,0"/>
+                            <materialDesign:PackIcon Kind="People" Height="40" Width="35" Margin="0,40,0,0"/>
                         </Grid>
                     </ListViewItem>
                     <ListViewItem x:Name="Discover">
                         <Grid>
-                            <materialDesign:PackIcon Kind="Explore"  Height="40" Width="35" Margin="0,20,0,0"/>
+                            <materialDesign:PackIcon Kind="Explore"  Height="40" Width="35" Margin="0,40,0,0"/>
                         </Grid>
                     </ListViewItem>
                     <ListViewItem x:Name="Settings">
                         <Grid>
-                            <materialDesign:PackIcon Kind="Settings" Height="40" Width="35" Margin="0,20,0,0"/>
+                            <materialDesign:PackIcon Kind="Settings" Height="40" Width="35" Margin="0,40,0,0"/>
                         </Grid>
                     </ListViewItem>
                     <ListViewItem x:Name="Logout">
                         <Grid>
-                            <materialDesign:PackIcon Kind="Logout" Height="35" Width="35" Margin="0,20,0,0"/>
+                            <materialDesign:PackIcon Kind="Logout" Height="35" Width="35" Margin="0,40,0,0"/>
                         </Grid>
                     </ListViewItem>
                 </ListView>
             </Grid>
 
             <Grid Grid.Column="1" Grid.Row="0" Background="#FFF1BE" Margin="0,25,0,25">
-                <Viewbox x:Name="CenterSide">
-                    <Calendar SelectedDatesChanged="selectedDate" Background="#FFF1BE" Margin="0,15,0,15" />
+                <Viewbox>
+                    <Calendar x:Name="calendar" SelectedDatesChanged="selectedDate" Background="#FFF1BE" IsTodayHighlighted="False">
+                        <Calendar.CalendarDayButtonStyle>
+                            <Style TargetType="CalendarDayButton" BasedOn="{StaticResource {x:Type CalendarDayButton}}">
+                                <EventSetter Event="Loaded" Handler="calendarButton_Loaded" />
+                            </Style>
+                        </Calendar.CalendarDayButtonStyle>
+                    </Calendar>
                 </Viewbox>
             </Grid>
 
             <Grid Grid.Column="2" Grid.Row="0">
-                <DataGrid Name="grdEmployee"  Margin="25,100,25,25" HeadersVisibility="None" ColumnWidth="*" HorizontalScrollBarVisibility="Hidden" Background="#F0DD94" RowBackground="#FFFDF2" AlternatingRowBackground="#FFF1BE" MinRowHeight="40" CanUserAddRows="False" CanUserDeleteRows="False" BorderThickness="1" BorderBrush="#545d6a">
+                <DataGrid Name="grdEmployee"  Margin="25,100,25,25" HeadersVisibility="None" ColumnWidth="*" HorizontalScrollBarVisibility="Hidden" Background="#FFF1BE" RowBackground="#FFFDF2" AlternatingRowBackground="#FFF1BE" MinRowHeight="40" CanUserAddRows="False" CanUserDeleteRows="False" BorderThickness="1" BorderBrush="#545d6a">
                     <DataGrid.CellStyle>
                         <Style TargetType="DataGridCell" >
                             <Style.Triggers>
