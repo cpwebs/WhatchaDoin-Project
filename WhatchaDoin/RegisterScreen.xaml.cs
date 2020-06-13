@@ -26,9 +26,11 @@ namespace WhatchaDoin
 
         private void btnSubmitRegister_Click(object sender, RoutedEventArgs e)
         {
-            String user = txtUsername.Text;
-            String password = txtPassword.Password;
-            String passwordRepeated = txtPasswordRepeat.Password;
+            string user = txtUsername.Text;
+            string password = txtPassword.Password;
+            string passwordRepeated = txtPasswordRepeat.Password;
+            DateTime today = DateTime.Today;
+            string privacy = "Public";
 
             if (password == passwordRepeated)
             {
@@ -41,17 +43,22 @@ namespace WhatchaDoin
 
                 if (!dr.HasRows)
                 {
-                    String insStmt = "INSERT INTO Users (UserName, Password) VALUES( @user, @password);";
+                    String insStmt = "INSERT INTO Users (UserName, Password, FriendCode, Joined, Privacy) VALUES( @user, @password, ROUND(RAND() * 1000, 0), @joined, @privacy);";
 
                     using (SqlConnection cnn = new SqlConnection(@"Data Source=(localdb)\MSSQLLocalDB; Initial Catalog=LoginDB; Integrated Security=True;"))
                     {
                         cnn.Open();
                         SqlCommand insCmd = new SqlCommand(insStmt, cnn);
                         // use sqlParameters to prevent sql injection!
-                        insCmd.Parameters.AddWithValue("@user", txtUsername.Text);
-                        insCmd.Parameters.AddWithValue("@password", txtPassword.Password);
+                        insCmd.Parameters.AddWithValue("@user", user);
+                        insCmd.Parameters.AddWithValue("@password", password);
+                        insCmd.Parameters.AddWithValue("@joined", today);
+                        insCmd.Parameters.AddWithValue("@privacy", privacy);
                         insCmd.ExecuteNonQuery();
                         MessageBox.Show("Account successfully created!");
+                        LoginScreen login = new LoginScreen();
+                        login.Show();
+                        this.Close();
                     }
                 }
 

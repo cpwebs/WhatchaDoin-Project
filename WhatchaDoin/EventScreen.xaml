@@ -50,7 +50,8 @@
             </Style>
 
             <Style TargetType="CalendarDayButton">
-                <Setter Property="Margin"  Value="5,5,5,5"/>
+                <Setter Property="Margin"  Value="6,7,6,7"/>
+                <Setter Property="FontSize" Value="14"/>
             </Style>
 
             <!--Minimize-->
@@ -73,6 +74,8 @@
                 <Setter Property="Content" Value="&#xE106;"/>
             </Style>
 
+           
+
         </ResourceDictionary>
     </Window.Resources>
 
@@ -88,8 +91,10 @@
     <Border x:Name="MainWindowBorder" Background="#75B791" BorderBrush="#FFF1BE" BorderThickness="0" >
         <Grid x:Name="parentContainer">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition MinWidth="275" Width="275*"/>
-                <ColumnDefinition MinWidth="385" Width="385*"/>
+                <ColumnDefinition MinWidth="295" Width="295*"/>
+                <ColumnDefinition MinWidth="5" Width="5*" />
+                <ColumnDefinition MinWidth="355" Width="355*"/>
+                <ColumnDefinition MinWidth="5" Width="5*" />
                 <ColumnDefinition MinWidth="240" Width="240*"/>
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
@@ -101,55 +106,76 @@
                 <ListView x:Name="ListViewMenu" Width="55" VerticalAlignment="Center" Foreground="#196862" ScrollViewer.HorizontalScrollBarVisibility="Disabled" SelectionChanged="ListViewMenu_SelectionChanged" Margin="0,0,0,0">
                     <ListViewItem x:Name="Home" >
                         <Grid>
-                            <materialDesign:PackIcon Kind="Home" Height="40" Width="35" Margin="0,0,0,0"/>
+                            <materialDesign:PackIcon Kind="Home" Height="40" Width="35" Margin="0,15,0,15"/>
                         </Grid>
                     </ListViewItem>
                     <ListViewItem x:Name="Events" >
                         <Grid>
-                            <materialDesign:PackIcon Kind="Event" Height="40" Width="35" Margin="0,40,0,0"/>
+                            <materialDesign:PackIcon Kind="Event" Height="40" Width="35" Margin="0,15,0,15"/>
                         </Grid>
                     </ListViewItem>
                     <ListViewItem x:Name="Friends" >
                         <Grid>
-                            <materialDesign:PackIcon Kind="People" Height="40" Width="35" Margin="0,40,0,0"/>
+                            <materialDesign:PackIcon Kind="People" Height="40" Width="35" Margin="0,15,0,15"/>
+                        </Grid>
+                    </ListViewItem>
+                    <ListViewItem x:Name="Memories" >
+                        <Grid>
+                            <materialDesign:PackIcon Kind="PhotoCamera"  Height="40" Width="35" Margin="0,15,0,15"/>
                         </Grid>
                     </ListViewItem>
                     <ListViewItem x:Name="Discover">
                         <Grid>
-                            <materialDesign:PackIcon Kind="Explore"  Height="40" Width="35" Margin="0,40,0,0"/>
+                            <materialDesign:PackIcon Kind="Explore"  Height="40" Width="35" Margin="0,15,0,15"/>
                         </Grid>
                     </ListViewItem>
                     <ListViewItem x:Name="Settings">
                         <Grid>
-                            <materialDesign:PackIcon Kind="Settings" Height="40" Width="35" Margin="0,40,0,0"/>
+                            <materialDesign:PackIcon Kind="Settings" Height="40" Width="35" Margin="0,15,0,15"/>
                         </Grid>
                     </ListViewItem>
                     <ListViewItem x:Name="Logout">
                         <Grid>
-                            <materialDesign:PackIcon Kind="Logout" Height="35" Width="35" Margin="0,40,0,0"/>
+                            <materialDesign:PackIcon Kind="Logout" Height="35" Width="35" Margin="0,15,0,15"/>
                         </Grid>
                     </ListViewItem>
                 </ListView>
             </Grid>
 
+            <!--Add/Update/Delete Event Column-->
             <ScrollViewer Grid.Column="0" Grid.Row="0" Margin="55,0,0,20" VerticalAlignment="Top" Background="#75B791">
                 <Viewbox>
                     <StackPanel Orientation="Vertical" Margin="5,0,0,20" VerticalAlignment="Top">
-                        <Label Content="Activity" Foreground="#FFFDF2" FontWeight="Bold" FontSize="15" HorizontalAlignment="Center" Margin="0,15,0,0"/>
-                        <TextBox x:Name="txtActivity" Margin="15,5,15,0" Background="White"/>
+                        
+                        <Label Content="Activity" Foreground="#FFFDF2" FontWeight="Bold" FontSize="15" HorizontalAlignment="Center" Margin="0,25,0,0"/>
+                        <TextBox x:Name="txtActivity" Visibility="Collapsed" LostFocus="txtActivity_LostFocus" Margin="15,5,15,0" Background="White"/>
+                        <TextBox x:Name="txtActivityWatermark" Margin="15,5,15,0" FontSize="12" Foreground="Gray" Text="Enter Activity" GotFocus="txtActivityWatermark_GotFocus" Background="White"/>
+
+                        <Label Content="Location" Foreground="#FFFDF2" FontWeight="Bold" FontSize="15" HorizontalAlignment="Center" Margin="0,25,0,0"/>
+                        <TextBox x:Name="txtLocation" Visibility="Collapsed" LostFocus="txtLocation_LostFocus" Margin="15,5,15,0" Background="White"/>
+                        <TextBox x:Name="txtLocationWatermark" Margin="15,5,15,0" FontSize="12" Foreground="Gray" Text="Enter Location" GotFocus="txtLocationWatermark_GotFocus" Background="White"/>
+
                         <Label Content="Date" Foreground="#FFFDF2" FontWeight="Bold" FontSize="15" HorizontalAlignment="Center" Margin="0,25,0,0"/>
-                        <DatePicker x:Name="dp" Margin="15,5,15,0" Background="White" Width="173" Height="30"/>
+                        <DatePicker x:Name="dp" Margin="15,5,15,0" Background="White" Width="173" Height="32"/>
+                        <TextBox x:Name="dpWatermark" GotFocus="dpWatermark_GotFocus" Text="Select Date" Foreground="Gray" FontSize="12" Margin="0,-32,15,0" Background="White" Width="153" Height="30"/>
+
+
                         <Label Content="Time" Foreground="#FFFDF2" FontWeight="Bold" FontSize="15" HorizontalAlignment="Center" Margin="0,25,0,0"/>
-                        <materialDesign:TimePicker x:Name="timeSet" Margin="15,5,15,0" Background="White"/>
+                        <materialDesign:TimePicker x:Name="timeSet" Margin="15,5,15,0" FontSize="13" Height="30" Background="White"/>
+
                         <Label Content="Budget" Foreground="#FFFDF2" FontWeight="Bold" FontSize="15" HorizontalAlignment="Center" Margin="0,25,0,0"/>
-                        <TextBox x:Name="budget" Margin="15,5,15,0" Background="White"/>
+                        <TextBox x:Name="budget" Visibility="Collapsed" LostFocus="budget_LostFocus" Margin="15,5,15,0" Background="White"/>
+                        <TextBox x:Name="budgetWatermark" Margin="15,5,15,0" FontSize="12" Foreground="Gray" Text="Enter Budget" GotFocus="budgetWatermark_GotFocus" Background="White"/>
+
                         <Label Content="Reservations" Foreground="#FFFDF2" FontWeight="Bold" FontSize="15" HorizontalAlignment="Center" Margin="0,25,0,0"/>
-                        <!--<TextBox  Margin="15,0,15,0" Background="White"/>-->
-                        <ComboBox x:Name="reserve" Margin="15,5,15,0" Foreground="Black" Background="White">
-                            <ComboBoxItem Content = "Yes" />
+                        <ComboBox x:Name="reserve" SelectedIndex="0" FontSize="12" Margin="15,5,15,0" Foreground="Gray" Background="White" DropDownOpened="reserve_DropDownOpened">
+                            <ComboBoxItem Visibility="Collapsed"  Content = "Please Select" />
+                            <ComboBoxItem Content = "Yes"/>
                             <ComboBoxItem Content = "No"/>
                             <ComboBoxItem Content = "Not Needed"/>
+                            <ComboBoxItem Content = "Haven't Made Yet"/>
                         </ComboBox>
+                        
                         <Label Content="Supply List" Foreground="#FFFDF2" FontWeight="Bold" FontSize="15" HorizontalAlignment="Center" Margin="0,25,0,0"/>
                         <DataGrid x:Name="grdSupply" AutoGenerateColumns="False" Height="100"  Margin="15,5,15,0" HeadersVisibility="None" HorizontalScrollBarVisibility="Hidden" Background="#FFF1BE" RowBackground="#FFFDF2" AlternatingRowBackground="#FFF1BE" IsReadOnly="True" CanUserAddRows="False" CanUserDeleteRows="False" BorderThickness="1" BorderBrush="#545d6a" MouseDoubleClick="supplyDoubleClick">
                             <DataGrid.Columns>
@@ -165,11 +191,14 @@
                                 </Style>
                             </DataGrid.CellStyle>
                         </DataGrid>
-                        <TextBox x:Name="testS" Margin="15,5,15,0" Background="White"/>
+                        
+                        <TextBox x:Name="testS" LostFocus="testS_LostFocus" Visibility="Collapsed" Margin="15,5,15,0" Background="White"/>
+                        <TextBox x:Name="testSWatermark" FontSize="12" Foreground="Gray" Text="Enter item" GotFocus="testSWatermark_GotFocus" Margin="15,5,15,0" Background="White"/>
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                             <Button Content="Add Item  " Background="White" FontSize="10" Margin="0,5,0,0" HorizontalAlignment="Center" Click="addSupply"/>
                             <Button Content="Delete Item  " Background="White" FontSize="10" Margin="0,5,0,0" HorizontalAlignment="Center" Click="deleteSupply"/>
                         </StackPanel>
+                        
                         <Label Content="Friends List" Foreground="#FFFDF2" FontWeight="Bold" FontSize="15" HorizontalAlignment="Center" Margin="0,25,0,0"/>
                         <DataGrid x:Name="grdFriends" AutoGenerateColumns="False" Height="100"  Margin="15,5,15,0" HeadersVisibility="None" HorizontalScrollBarVisibility="Hidden" Background="#FFF1BE" RowBackground="#FFFDF2" AlternatingRowBackground="#FFF1BE" IsReadOnly="True" CanUserAddRows="False" CanUserDeleteRows="False" BorderThickness="1" BorderBrush="#545d6a" MouseDoubleClick="friendDoubleClick">
                             <DataGrid.Columns>
@@ -185,13 +214,15 @@
                                 </Style>
                             </DataGrid.CellStyle>
                         </DataGrid>
-                        <TextBox x:Name="testF"  Margin="15,5,15,0" Background="White"/>
+                        
+                        <TextBox x:Name="testF" LostFocus="testF_LostFocus" Visibility="Collapsed" Margin="15,5,15,0" Background="White"/>
+                        <TextBox x:Name="testFWatermark" FontSize="12" Foreground="Gray" Text="Enter Friend" GotFocus="testFWatermark_GotFocus"  Margin="15,5,15,0" Background="White"/>
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                             <Button Content="Add Friend" Background="White" FontSize="10" Margin="0,5,0,0" HorizontalAlignment="Center" Click="addFriend"/>
                             <Button Content="Delete Friend" Background="White" FontSize="10" Margin="0,5,0,0" HorizontalAlignment="Center" Click="deleteFriend"/>
                         </StackPanel>
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,40,0,0">
-                            <Button Content="Add&#xa;Event" Background="White" Height="50" FontSize="10" Click="addEvent"/>
+                            <Button x:Name="addUpdateEvent" Content="Add&#xa;Event" Background="White" Height="50" FontSize="10" Click="addEvent"/>
                             <Button Content="Delete&#xa;Event" Background="White" Height="50" FontSize="10" Click="deleteEvent"/>
                             <Button Content="Clear" Background="White" Height="50" FontSize="10" Click="clear_Fields" />
                         </StackPanel>
@@ -199,7 +230,10 @@
                 </Viewbox>
             </ScrollViewer>
 
-            <Grid Grid.Column="1" Grid.Row="0" Background="#FFF1BE" Margin="0,25,0,25">
+            <GridSplitter Grid.Column="1" Grid.Row="0" Width="5" Margin="0,25,0,25" HorizontalAlignment="Stretch" ResizeDirection="Columns" ToolTip="Drag left-right to resize" ResizeBehavior="BasedOnAlignment"/>
+
+            <!--Calendar View Column-->
+            <Grid Grid.Column="2" Grid.Row="0" Background="#FFF1BE" Margin="0,25,0,25">
                 <Viewbox>
                     <Calendar x:Name="calendar" SelectedDatesChanged="selectedDate" Background="#FFF1BE" IsTodayHighlighted="False">
                         <Calendar.CalendarDayButtonStyle>
@@ -211,7 +245,10 @@
                 </Viewbox>
             </Grid>
 
-            <Grid Grid.Column="2" Grid.Row="0">
+            <GridSplitter Grid.Column="3" Grid.Row="0" Width="5" Margin="0,25,0,25" HorizontalAlignment="Stretch" ResizeDirection="Columns" ToolTip="Drag left-right to resize" ResizeBehavior="BasedOnAlignment"/>
+
+            <!--Quick View of Events Column-->
+            <Grid Grid.Column="4" Grid.Row="0">
                 <DataGrid Name="grdBucketlist" CanUserSortColumns="True" AutoGenerateColumns="False" MinColumnWidth="400" Margin="25,100,25,25" HeadersVisibility="None" HorizontalScrollBarVisibility="Hidden" Background="#FFF1BE" RowBackground="#FFFDF2" AlternatingRowBackground="#FFF1BE" MinRowHeight="40" IsReadOnly="True" CanUserAddRows="False" CanUserDeleteRows="False" BorderThickness="1"  BorderBrush="#545d6a" MouseDoubleClick="dataGrid_MouseDoubleClick">
                     <DataGrid.Columns>
                         <DataGridTextColumn Binding="{Binding Activity}" />
@@ -231,7 +268,7 @@
             </Grid>
 
             <!--Caption buttons-->
-            <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right"  VerticalAlignment="Top" Width="140" Height="40" Background="#FFF1BE">
+            <StackPanel Grid.Column="4" Orientation="Horizontal" HorizontalAlignment="Right"  VerticalAlignment="Top" Width="140" Height="40" Background="#FFF1BE">
                 <Button Style="{StaticResource MinimizeButtonStyle}" WindowChrome.IsHitTestVisibleInChrome="True" ToolTip="Minimize"
                             Command="{x:Static SystemCommands.MinimizeWindowCommand}"/>
                 <Button x:Name="RestoreButton" Visibility="Collapsed" Style="{StaticResource RestoreButtonStyle}" 

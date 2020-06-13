@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
+using System.Data.SqlClient;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
@@ -18,13 +20,68 @@ namespace WhatchaDoin
     public partial class SettingsScreen : Window
     {
         public string username;
+        public string constr = @"Data Source=(localdb)\MSSQLLocalDB; Initial Catalog=LoginDB; Integrated Security=True;";
+        DataSet ds;
 
         public SettingsScreen(string user)
         {
             username = user;
             InitializeComponent();
             StateChanged += MainWindowStateChangeRaised;
+            loadLabelValues();
+        }
 
+        public void loadLabelValues()
+        {
+
+            try
+            {
+                using (SqlConnection conn = new SqlConnection(constr))
+                {
+                    conn.Open();
+
+                    string CmdString = "SELECT * FROM Users WHERE UserName = @username";
+
+                    SqlCommand cmd = new SqlCommand(CmdString, conn);
+                    cmd.Parameters.AddWithValue("@username", username);
+
+                    using (SqlDataAdapter adapter = new SqlDataAdapter(cmd))
+                    {
+                        ds = new DataSet("myDataSet");
+                        adapter.Fill(ds);
+                        DataTable dt = ds.Tables[0];
+
+                        foreach (DataRow dr in dt.Rows)
+                        {
+                            lblUsername.Content = "Username: " + dr[0].ToString();
+
+                            int lengthPassword = dr[1].ToString().Length;
+                            string password = "";
+                            for(int i = 0; i < lengthPassword; i++)
+                            {
+                                password += "*";
+                            }
+                            lblPassword.Content = "Password: " + password;
+                            lblFriendCode.Content = "Friend Code: " + dr[2].ToString();
+                            lblJoined.Content = "Joined: " + Convert.ToDateTime(dr[3]).ToShortDateString();
+                            lblPrivacy.Content = "Privacy: " + dr[4].ToString();
+
+                            /*
+                            memoriesBlock.Text = dr[4].ToString();
+                            again.Text = dr[5].ToString();
+                            rating.Value = Convert.ToInt32(dr[6]);
+                            recommend.Text = dr[7].ToString();
+                            feedback.Text = dr[8].ToString();
+                            */
+                        }
+                    }
+                }
+            }
+
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
         }
 
         private void selectedDate(object sender, SelectionChangedEventArgs e)
@@ -129,6 +186,20 @@ namespace WhatchaDoin
                         friend.WindowState = System.Windows.WindowState.Maximized;
                     }
                     friend.Show();
+                    this.Close();
+                    break;
+                case "Memories":
+                    MemoriesScreen memories = new MemoriesScreen(username);
+                    memories.Height = this.ActualHeight;
+                    memories.Width = this.ActualWidth;
+                    memories.Top = this.Top;
+                    memories.Left = this.Left;
+                    memories.WindowStartupLocation = this.WindowStartupLocation;
+                    if (this.WindowState == System.Windows.WindowState.Maximized)
+                    {
+                        memories.WindowState = System.Windows.WindowState.Maximized;
+                    }
+                    memories.Show();
                     this.Close();
                     break;
                 case "Discover":

@@ -51,7 +51,8 @@
             </Style>
 
             <Style TargetType="CalendarDayButton">
-                <Setter Property="Margin"  Value="5,5,5,5"/>
+                <Setter Property="Margin"  Value="6,7,6,7"/>
+                <Setter Property="FontSize" Value="14"/>
             </Style>
 
             <!--Minimize-->
@@ -89,65 +90,61 @@
     <Border x:Name="MainWindowBorder" Background="#75B791" BorderBrush="#FFF1BE" BorderThickness="0" >
         <Grid x:Name="parentContainer">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition MinWidth="275" Width="275*"/>
-                <ColumnDefinition MinWidth="385" Width="385*"/>
+                <ColumnDefinition MinWidth="295" Width="295*"/>
+                <ColumnDefinition MinWidth="5" Width="5*" />
+                <ColumnDefinition MinWidth="355" Width="355*"/>
+                <ColumnDefinition MinWidth="5" Width="5*" />
                 <ColumnDefinition MinWidth="240" Width="240*"/>
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
                 <RowDefinition MinHeight="600" Height="600*"/>
             </Grid.RowDefinitions>
 
-            <!--Caption buttons-->
-            <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right"  VerticalAlignment="Top" Width="140" Height="40" Background="#FFF1BE">
-                <Button Style="{StaticResource MinimizeButtonStyle}" WindowChrome.IsHitTestVisibleInChrome="True" ToolTip="Minimize"
-                            Command="{x:Static SystemCommands.MinimizeWindowCommand}"/>
-                <Button x:Name="RestoreButton" Visibility="Collapsed" Style="{StaticResource RestoreButtonStyle}" 
-                            Command="{x:Static SystemCommands.RestoreWindowCommand}" WindowChrome.IsHitTestVisibleInChrome="True" ToolTip="Restore"/>
-                <Button x:Name="MaximizeButton" Visibility="Visible" Style="{StaticResource MaximizeButtonStyle}" 
-                            Command="{x:Static SystemCommands.MaximizeWindowCommand}" WindowChrome.IsHitTestVisibleInChrome="True" ToolTip="Maximize" />
-                <Button Style="{StaticResource CloseButtonStyle}" WindowChrome.IsHitTestVisibleInChrome="True" ToolTip="Close"
-                            Command="{x:Static SystemCommands.CloseWindowCommand}"/>
-            </StackPanel>
-
             <!--Menu bar-->
             <Grid Grid.Column="0" Grid.Row="0" x:Name="GridMenu" HorizontalAlignment="Left" Background="#FFF1BE">
                 <ListView x:Name="ListViewMenu" Width="55" VerticalAlignment="Center" Foreground="#196862" ScrollViewer.HorizontalScrollBarVisibility="Disabled" SelectionChanged="ListViewMenu_SelectionChanged" Margin="0,0,0,0">
                     <ListViewItem x:Name="Home" >
                         <Grid>
-                            <materialDesign:PackIcon Kind="Home" Height="40" Width="35" Margin="0,0,0,0"/>
+                            <materialDesign:PackIcon Kind="Home" Height="40" Width="35" Margin="0,15,0,15"/>
                         </Grid>
                     </ListViewItem>
                     <ListViewItem x:Name="Events" >
                         <Grid>
-                            <materialDesign:PackIcon Kind="Event" Height="40" Width="35" Margin="0,40,0,0"/>
+                            <materialDesign:PackIcon Kind="Event" Height="40" Width="35" Margin="0,15,0,15"/>
                         </Grid>
                     </ListViewItem>
                     <ListViewItem x:Name="Friends" >
                         <Grid>
-                            <materialDesign:PackIcon Kind="People" Height="40" Width="35" Margin="0,40,0,0"/>
+                            <materialDesign:PackIcon Kind="People" Height="40" Width="35" Margin="0,15,0,15"/>
+                        </Grid>
+                    </ListViewItem>
+                    <ListViewItem x:Name="Memories" >
+                        <Grid>
+                            <materialDesign:PackIcon Kind="PhotoCamera"  Height="40" Width="35" Margin="0,15,0,15"/>
                         </Grid>
                     </ListViewItem>
                     <ListViewItem x:Name="Discover">
                         <Grid>
-                            <materialDesign:PackIcon Kind="Explore"  Height="40" Width="35" Margin="0,40,0,0"/>
+                            <materialDesign:PackIcon Kind="Explore"  Height="40" Width="35" Margin="0,15,0,15"/>
                         </Grid>
                     </ListViewItem>
                     <ListViewItem x:Name="Settings">
                         <Grid>
-                            <materialDesign:PackIcon Kind="Settings" Height="40" Width="35" Margin="0,40,0,0"/>
+                            <materialDesign:PackIcon Kind="Settings" Height="40" Width="35" Margin="0,15,0,15"/>
                         </Grid>
                     </ListViewItem>
                     <ListViewItem x:Name="Logout">
                         <Grid>
-                            <materialDesign:PackIcon Kind="Logout" Height="35" Width="35" Margin="0,40,0,0"/>
+                            <materialDesign:PackIcon Kind="Logout" Height="35" Width="35" Margin="0,15,0,15"/>
                         </Grid>
                     </ListViewItem>
                 </ListView>
             </Grid>
 
-            <Viewbox Grid.Column="0" Grid.Row="0" Margin="55,0,0,20" HorizontalAlignment="Left" VerticalAlignment="Top">
+            <!--Profile Stats Column-->
+            <Viewbox Grid.Column="0" Grid.Row="0" Margin="75,0,0,20" HorizontalAlignment="Left" VerticalAlignment="Top">
                 <StackPanel Orientation="Vertical">
-                    <Label Content="Profile Stats" Foreground="#FFFDF2" FontWeight="Bold" FontSize="4" Margin="0,0,0,-3"/>
+                    <Label Content="Profile Stats" Foreground="#FFFDF2" FontWeight="Bold" FontSize="6" Margin="0,0,0,-3"/>
                     <Separator Height=".2" VerticalAlignment="Top" Margin="2,0,2,0"/>
                     <Label Name="lblEvents" Content="Total Events: " FontSize="3" Foreground="#FFFDF2" Margin="0,2,0,0"/>
                     <Label Name="lblCompleted" Content="Completed: " FontSize="3" Foreground="#FFFDF2" Margin="0,2,0,0"/>
@@ -158,7 +155,10 @@
                 </StackPanel>
             </Viewbox>
 
-            <Grid Grid.Column="1" Grid.Row="0" Background="#FFF1BE" Margin="0,25,0,25">
+            <GridSplitter Grid.Column="1" Grid.Row="0" Width="5" Margin="0,25,0,25" HorizontalAlignment="Stretch" ResizeDirection="Columns" ToolTip="Drag left-right to resize" ResizeBehavior="BasedOnAlignment"/>
+
+            <!--Calendar View Column-->
+            <Grid Grid.Column="2" Grid.Row="0" Background="#FFF1BE" Margin="0,25,0,25">
                 <Viewbox>
                     <Calendar x:Name="calendar" SelectedDatesChanged="selectedDate" Background="#FFF1BE" IsTodayHighlighted="False">
                         <Calendar.CalendarDayButtonStyle>
@@ -170,26 +170,142 @@
                 </Viewbox>
             </Grid>
 
-            <ScrollViewer Grid.Column="2" Grid.Row="0" Margin="15,45,0,20" VerticalAlignment="Top">
+            <GridSplitter Grid.Column="3" Grid.Row="0" Width="5" Margin="0,25,0,25" HorizontalAlignment="Stretch" ResizeDirection="Columns" ToolTip="Drag left-right to resize" ResizeBehavior="BasedOnAlignment"/>
+
+
+            <!--Event Details Column-->
+            <ScrollViewer Grid.Column="4" Grid.Row="0" Margin="15,45,0,20" VerticalAlignment="Top">
                 <StackPanel Orientation="Vertical" Margin="0,0,0,10">
-                    <Label Content="Event Details" HorizontalAlignment="Center" Foreground="#FFFDF2" FontWeight="Bold" FontSize="25" Margin="0,0,0,0" VerticalAlignment="Top"/>
+                    <Label Content="Event Details" HorizontalAlignment="Center" Foreground="#FFFDF2" FontWeight="Bold" FontSize="30" Margin="0,0,0,0" VerticalAlignment="Top"/>
                     <Separator Height="1" VerticalAlignment="Top" Margin="15,0,15,0"/>
                     <Label Content="Activity" Foreground="#FFFDF2" FontWeight="Bold" FontSize="15" HorizontalAlignment="Center" Margin="0,15,0,0"/>
-                    <DataGrid Width="300" Margin="15,5,15,0" Height="75" HeadersVisibility="None" />
+                    <DataGrid x:Name="grdActivity" AutoGenerateColumns="False" Height="100"  Margin="15,5,15,0" HeadersVisibility="None" HorizontalScrollBarVisibility="Hidden" Background="#FFF1BE" RowBackground="#FFFDF2" AlternatingRowBackground="#FFF1BE" IsReadOnly="True" CanUserAddRows="False" CanUserDeleteRows="False" BorderThickness="1" BorderBrush="#545d6a">
+                        <!--Display Only Activity-->
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Binding="{Binding Activity}" />
+                        </DataGrid.Columns>
+                        <DataGrid.CellStyle>
+                            <Style TargetType="DataGridCell"  >
+                                <Style.Triggers>
+                                    <Trigger Property="IsSelected" Value="True">
+                                        <Setter Property="Background" Value="#75B791"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </DataGrid.CellStyle>
+                    </DataGrid>
+                    <Label Content="Location" Foreground="#FFFDF2" FontWeight="Bold" FontSize="15" HorizontalAlignment="Center" Margin="0,25,0,0"/>
+                    <DataGrid x:Name="grdLocation" AutoGenerateColumns="False" Height="50"  Margin="15,5,15,0" HeadersVisibility="None" HorizontalScrollBarVisibility="Hidden" Background="#FFF1BE" RowBackground="#FFFDF2" AlternatingRowBackground="#FFF1BE" IsReadOnly="True" CanUserAddRows="False" CanUserDeleteRows="False" BorderThickness="1" BorderBrush="#545d6a">
+                        <!--Display Only Time and Format with AM/PM-->
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Binding="{Binding Location}" />
+                        </DataGrid.Columns>
+                        <DataGrid.CellStyle>
+                            <Style TargetType="DataGridCell"  >
+                                <Style.Triggers>
+                                    <Trigger Property="IsSelected" Value="True">
+                                        <Setter Property="Background" Value="#75B791"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </DataGrid.CellStyle>
+                    </DataGrid>
                     <Label Content="Date" Foreground="#FFFDF2" FontWeight="Bold" FontSize="15" HorizontalAlignment="Center" Margin="0,25,0,0"/>
-                    <DataGrid Width="300" Margin="15,5,15,0" />
+                    <TextBox x:Name="dateTxtBox" Background="#FFF1BE" Height="30" Width="300" Margin="15,5,15,0" IsReadOnly="True"/>
                     <Label Content="Time" Foreground="#FFFDF2" FontWeight="Bold" FontSize="15" HorizontalAlignment="Center" Margin="0,25,0,0"/>
-                    <DataGrid Width="300"  Margin="15,5,15,0" />
+                    <DataGrid x:Name="grdTimeSet" AutoGenerateColumns="False" Height="50"  Margin="15,5,15,0" HeadersVisibility="None" HorizontalScrollBarVisibility="Hidden" Background="#FFF1BE" RowBackground="#FFFDF2" AlternatingRowBackground="#FFF1BE" IsReadOnly="True" CanUserAddRows="False" CanUserDeleteRows="False" BorderThickness="1" BorderBrush="#545d6a">
+                        <!--Display Only Time and Format with AM/PM-->
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Binding="{Binding TimeSet, StringFormat=t}" />
+                        </DataGrid.Columns>
+                        <DataGrid.CellStyle>
+                            <Style TargetType="DataGridCell"  >
+                                <Style.Triggers>
+                                    <Trigger Property="IsSelected" Value="True">
+                                        <Setter Property="Background" Value="#75B791"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </DataGrid.CellStyle>
+                    </DataGrid>
                     <Label Content="Budget" Foreground="#FFFDF2" FontWeight="Bold" FontSize="15" HorizontalAlignment="Center" Margin="0,25,0,0"/>
-                    <DataGrid Width="300"  Margin="15,5,15,0" />
+                    <DataGrid x:Name="grdBudget" AutoGenerateColumns="False" Height="50"  Margin="15,5,15,0" HeadersVisibility="None" HorizontalScrollBarVisibility="Hidden" Background="#FFF1BE" RowBackground="#FFFDF2" AlternatingRowBackground="#FFF1BE" IsReadOnly="True" CanUserAddRows="False" CanUserDeleteRows="False" BorderThickness="1" BorderBrush="#545d6a">
+                        <!--Display Only Budget and Format Currency-->
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Binding="{Binding Budget, StringFormat=c}" />
+                        </DataGrid.Columns>
+                        <DataGrid.CellStyle>
+                            <Style TargetType="DataGridCell"  >
+                                <Style.Triggers>
+                                    <Trigger Property="IsSelected" Value="True">
+                                        <Setter Property="Background" Value="#75B791"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </DataGrid.CellStyle>
+                    </DataGrid>
                     <Label Content="Reservations" Foreground="#FFFDF2" FontWeight="Bold" FontSize="15" HorizontalAlignment="Center" Margin="0,25,0,0"/>
-                    <DataGrid Width="300"  Margin="15,5,15,0" />
+                    <DataGrid x:Name="grdReservation" AutoGenerateColumns="False" Height="50"  Margin="15,5,15,0" HeadersVisibility="None" HorizontalScrollBarVisibility="Hidden" Background="#FFF1BE" RowBackground="#FFFDF2" AlternatingRowBackground="#FFF1BE" IsReadOnly="True" CanUserAddRows="False" CanUserDeleteRows="False" BorderThickness="1" BorderBrush="#545d6a">
+                        <!--Display Only Reservation-->
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Binding="{Binding Reservation}" />
+                        </DataGrid.Columns>
+                        <DataGrid.CellStyle>
+                            <Style TargetType="DataGridCell"  >
+                                <Style.Triggers>
+                                    <Trigger Property="IsSelected" Value="True">
+                                        <Setter Property="Background" Value="#75B791"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </DataGrid.CellStyle>
+                    </DataGrid>
                     <Label Content="Supplies" Foreground="#FFFDF2" FontWeight="Bold" FontSize="15" HorizontalAlignment="Center" Margin="0,25,0,0"/>
-                    <DataGrid Width="300"  Margin="15,5,15,0" Height="200" HeadersVisibility="None" />
+                    <DataGrid x:Name="grdSupplies" AutoGenerateColumns="False" Height="100"  Margin="15,5,15,0" HeadersVisibility="None" HorizontalScrollBarVisibility="Hidden" Background="#FFF1BE" RowBackground="#FFFDF2" AlternatingRowBackground="#FFF1BE" IsReadOnly="True" CanUserAddRows="False" CanUserDeleteRows="False" BorderThickness="1" BorderBrush="#545d6a">
+                        <!--Display Only Supplies-->
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Binding="{Binding Supplies}" />
+                        </DataGrid.Columns>
+                        <DataGrid.CellStyle>
+                            <Style TargetType="DataGridCell"  >
+                                <Style.Triggers>
+                                    <Trigger Property="IsSelected" Value="True">
+                                        <Setter Property="Background" Value="#75B791"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </DataGrid.CellStyle>
+                    </DataGrid>
                     <Label Content="Friends" Foreground="#FFFDF2" FontWeight="Bold" FontSize="15" HorizontalAlignment="Center" Margin="0,25,0,0"/>
-                    <DataGrid Width="300" Height="200" HeadersVisibility="None" Margin="15,5,15,0" />
+                    <DataGrid x:Name="grdFriends" AutoGenerateColumns="False" Height="100"  Margin="15,5,15,0" HeadersVisibility="None" HorizontalScrollBarVisibility="Hidden" Background="#FFF1BE" RowBackground="#FFFDF2" AlternatingRowBackground="#FFF1BE" IsReadOnly="True" CanUserAddRows="False" CanUserDeleteRows="False" BorderThickness="1" BorderBrush="#545d6a">
+                        <!--Display Only Friends-->
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Binding="{Binding Friends}" />
+                        </DataGrid.Columns>
+                        <DataGrid.CellStyle>
+                            <Style TargetType="DataGridCell"  >
+                                <Style.Triggers>
+                                    <Trigger Property="IsSelected" Value="True">
+                                        <Setter Property="Background" Value="#75B791"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </DataGrid.CellStyle>
+                    </DataGrid>
                 </StackPanel>
             </ScrollViewer>
+
+            <!--Caption buttons-->
+            <StackPanel Grid.Column="4" Orientation="Horizontal" HorizontalAlignment="Right"  VerticalAlignment="Top" Width="140" Height="40" Background="#FFF1BE">
+                <Button Style="{StaticResource MinimizeButtonStyle}" WindowChrome.IsHitTestVisibleInChrome="True" ToolTip="Minimize"
+                            Command="{x:Static SystemCommands.MinimizeWindowCommand}"/>
+                <Button x:Name="RestoreButton" Visibility="Collapsed" Style="{StaticResource RestoreButtonStyle}" 
+                            Command="{x:Static SystemCommands.RestoreWindowCommand}" WindowChrome.IsHitTestVisibleInChrome="True" ToolTip="Restore"/>
+                <Button x:Name="MaximizeButton" Visibility="Visible" Style="{StaticResource MaximizeButtonStyle}" 
+                            Command="{x:Static SystemCommands.MaximizeWindowCommand}" WindowChrome.IsHitTestVisibleInChrome="True" ToolTip="Maximize" />
+                <Button Style="{StaticResource CloseButtonStyle}" WindowChrome.IsHitTestVisibleInChrome="True" ToolTip="Close"
+                            Command="{x:Static SystemCommands.CloseWindowCommand}"/>
+            </StackPanel>
 
         </Grid>
     </Border>

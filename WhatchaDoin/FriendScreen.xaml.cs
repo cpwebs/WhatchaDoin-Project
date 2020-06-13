@@ -13,6 +13,12 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Windows.Controls.Primitives;
 using System.Drawing;
+using System.Windows.Forms;
+using Microsoft.VisualBasic;
+using ListViewItem = System.Windows.Controls.ListViewItem;
+using ListView = System.Windows.Controls.ListView;
+using MessageBox = System.Windows.Forms.MessageBox;
+using System.Diagnostics;
 
 namespace WhatchaDoin
 {
@@ -55,7 +61,7 @@ namespace WhatchaDoin
             String CmdString = string.Empty;
             using (SqlConnection cnn = new SqlConnection(@"Data Source=(localdb)\MSSQLLocalDB; Initial Catalog=LoginDB; Integrated Security=True;"))
             {
-                CmdString = "SELECT Friends FROM Friends WHERE UserName=@username";
+                CmdString = "SELECT Friends FROM Friends WHERE UserName=@username AND Friends IS NOT NULL";
                 SqlCommand cmd = new SqlCommand(CmdString, cnn);
                 cmd.Parameters.AddWithValue("@username", username);
                 SqlDataAdapter sda = new SqlDataAdapter(cmd);
@@ -67,6 +73,7 @@ namespace WhatchaDoin
 
         private void selectedDate(object sender, SelectionChangedEventArgs e)
         {
+            /*
             if (MessageBox.Show("Do you want to add an event?", "Confirmation", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
             {
                 // add event
@@ -75,6 +82,7 @@ namespace WhatchaDoin
             {
                 // cancel
             }
+            */
         }
 
         private void CommandBinding_CanExecute(object sender, CanExecuteRoutedEventArgs e)
@@ -169,6 +177,20 @@ namespace WhatchaDoin
                     friend.Show();
                     this.Close();
                     break;
+                case "Memories":
+                    MemoriesScreen memories = new MemoriesScreen(username);
+                    memories.Height = this.ActualHeight;
+                    memories.Width = this.ActualWidth;
+                    memories.Top = this.Top;
+                    memories.Left = this.Left;
+                    memories.WindowStartupLocation = this.WindowStartupLocation;
+                    if (this.WindowState == System.Windows.WindowState.Maximized)
+                    {
+                        memories.WindowState = System.Windows.WindowState.Maximized;
+                    }
+                    memories.Show();
+                    this.Close();
+                    break;
                 case "Discover":
                     DiscoverScreen discover = new DiscoverScreen(username);
                     discover.Height = this.ActualHeight;
@@ -229,6 +251,77 @@ namespace WhatchaDoin
             CalendarDayButton button = (CalendarDayButton)sender;
             DateTime date = (DateTime)button.DataContext;
             HighlightDay(button, date);
+        }
+
+        private void addFriend(object sender, RoutedEventArgs e)
+        {
+            
+            
+        }
+
+        private void txtFriendWatermark_GotFocus(object sender, RoutedEventArgs e)
+        {
+            txtFriendWatermark.Visibility = Visibility.Collapsed;
+            txtFriendCode.Visibility = Visibility.Visible;
+            txtFriendCode.Focus();
+        }
+
+        private void txtFriendCode_LostFocus(object sender, RoutedEventArgs e)
+        {
+            if(string.IsNullOrEmpty(txtFriendCode.Text))
+            {
+                txtFriendCode.Visibility = Visibility.Collapsed;
+                txtFriendWatermark.Visibility = Visibility.Visible;
+            }
+        }
+
+        private void txtSearch_LostFocus(object sender, RoutedEventArgs e)
+        {
+            if (string.IsNullOrEmpty(txtSearch.Text))
+            {
+                txtSearch.Visibility = Visibility.Collapsed;
+                txtSearchWatermark.Visibility = Visibility.Visible;
+            }
+            
+        }
+
+        private void txtSearchWatermark_GotFocus(object sender, RoutedEventArgs e)
+        {
+            txtSearchWatermark.Visibility = Visibility.Collapsed;
+            txtSearch.Visibility = Visibility.Visible;
+            txtSearch.Focus();
+        }
+
+        private void recipient_LostFocus(object sender, RoutedEventArgs e)
+        {
+            if (string.IsNullOrEmpty(recipient.Text))
+            {
+                recipient.Visibility = Visibility.Collapsed;
+                recipientWatermark.Visibility = Visibility.Visible;
+            }
+        }
+
+        private void recipientWatermark_GotFocus(object sender, RoutedEventArgs e)
+        {
+            recipientWatermark.Visibility = Visibility.Collapsed;
+            recipient.Visibility = Visibility.Visible;
+            recipient.Focus();
+        }
+
+        private void message_LostFocus(object sender, RoutedEventArgs e)
+        {
+            if (string.IsNullOrEmpty(message.Text))
+            {
+                message.Visibility = Visibility.Collapsed;
+                messageWatermark.Visibility = Visibility.Visible;
+            }
+        }
+
+        private void messageWatermark_GotFocus(object sender, RoutedEventArgs e)
+        {
+            messageWatermark.Visibility = Visibility.Collapsed;
+            message.Visibility = Visibility.Visible;
+            message.Focus();
         }
     }
 }

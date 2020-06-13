@@ -109,57 +109,121 @@
                 <ListView x:Name="ListViewMenu" Width="55" VerticalAlignment="Center" Foreground="#196862" ScrollViewer.HorizontalScrollBarVisibility="Disabled" SelectionChanged="ListViewMenu_SelectionChanged" Margin="0,0,0,0">
                     <ListViewItem x:Name="Home" >
                         <Grid>
-                            <materialDesign:PackIcon Kind="Home" Height="40" Width="35" Margin="0,0,0,0"/>
+                            <materialDesign:PackIcon Kind="Home" Height="40" Width="35" Margin="0,15,0,15"/>
                         </Grid>
                     </ListViewItem>
                     <ListViewItem x:Name="Events" >
                         <Grid>
-                            <materialDesign:PackIcon Kind="Event" Height="40" Width="35" Margin="0,40,0,0"/>
+                            <materialDesign:PackIcon Kind="Event" Height="40" Width="35" Margin="0,15,0,15"/>
                         </Grid>
                     </ListViewItem>
                     <ListViewItem x:Name="Friends" >
                         <Grid>
-                            <materialDesign:PackIcon Kind="People" Height="40" Width="35" Margin="0,40,0,0"/>
+                            <materialDesign:PackIcon Kind="People" Height="40" Width="35" Margin="0,15,0,15"/>
+                        </Grid>
+                    </ListViewItem>
+                    <ListViewItem x:Name="Memories" >
+                        <Grid>
+                            <materialDesign:PackIcon Kind="PhotoCamera"  Height="40" Width="35" Margin="0,15,0,15"/>
                         </Grid>
                     </ListViewItem>
                     <ListViewItem x:Name="Discover">
                         <Grid>
-                            <materialDesign:PackIcon Kind="Explore"  Height="40" Width="35" Margin="0,40,0,0"/>
+                            <materialDesign:PackIcon Kind="Explore"  Height="40" Width="35" Margin="0,15,0,15"/>
                         </Grid>
                     </ListViewItem>
                     <ListViewItem x:Name="Settings">
                         <Grid>
-                            <materialDesign:PackIcon Kind="Settings" Height="40" Width="35" Margin="0,40,0,0"/>
+                            <materialDesign:PackIcon Kind="Settings" Height="40" Width="35" Margin="0,15,0,15"/>
                         </Grid>
                     </ListViewItem>
                     <ListViewItem x:Name="Logout">
                         <Grid>
-                            <materialDesign:PackIcon Kind="Logout" Height="35" Width="35" Margin="0,40,0,0"/>
+                            <materialDesign:PackIcon Kind="Logout" Height="35" Width="35" Margin="0,15,0,15"/>
                         </Grid>
                     </ListViewItem>
                 </ListView>
             </Grid>
 
-            <Grid Grid.Column="1" Grid.Row="0" Background="#FFF1BE" Margin="0,25,0,25">
-                <Viewbox x:Name="CenterSide">
-                    <Calendar SelectedDatesChanged="selectedDate" Background="#FFF1BE" Margin="0,15,0,15" />
-                </Viewbox>
+            <Grid Grid.Column="0" Grid.Row="0"  Margin="55,0,0,20">
+                <Label Content="User" HorizontalAlignment="Center" Foreground="#FFFDF2" FontWeight="Bold" FontSize="25" Margin="0,50,0,0" VerticalAlignment="Top"/>
+                <Separator Height="1" VerticalAlignment="Top" Margin="50,90,50,0"/>
+
+                <Grid  Margin="20,100,20,0">
+                    <StackPanel Orientation="Vertical">
+                        <Label Name="lblUsername" Content="Username: " FontSize="17" Foreground="White" Margin="0,22,0,50"/>
+                        <Label Name="lblPassword" Content="Password: " FontSize="17" Foreground="White" Margin="0,2,0,50"/>
+                        <Label Name="lblPrivacy" Content="Privacy: " FontSize="17" Foreground="White" Margin="0,2,0,50"/>
+                        <Label Name="lblJoined" Content="Joined: " FontSize="17" Foreground="White" Margin="0,2,0,50"/>
+                        <Label Name="lblFriendCode" Content="Friend Code: " FontSize="17" Foreground="White" Margin="0,2,0,50"/>
+                    </StackPanel>
+                </Grid>
+
             </Grid>
 
+            <ScrollViewer Grid.Column="1" Grid.Row="0" Background="#FFF1BE" Margin="0,20,0,20">
+                <StackPanel>
+                    
+                    <Label Content="Change Password" HorizontalAlignment="Center" Foreground="#196862" FontWeight="Bold" FontSize="25" Margin="0,15,0,0" />
+                    
+                    <TextBox x:Name="oldPassword" Visibility="Collapsed" Margin="45,15,45,0" Background="White"/>
+                    <TextBox x:Name="oldPasswordWatermark" Margin="45,15,45,0" FontSize="12" Foreground="Gray" Text="Enter Old Password" Background="White"/>
+                    <TextBox x:Name="newPassword" Visibility="Collapsed" Margin="45,15,45,0" Background="White"/>
+                    <TextBox x:Name="newPasswordWatermark" Margin="45,15,45,0" FontSize="12" Foreground="Gray" Text="Enter New Password" Background="White"/>
+                    <TextBox x:Name="repeatPassword" Visibility="Collapsed" Margin="45,15,45,0" Background="White"/>
+                    <TextBox x:Name="repeatPasswordWatermark" Margin="45,15,45,0" FontSize="12" Foreground="Gray" Text="Repeat New Password" Background="White"/>
+
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="45,15,45,0">
+                        <Button Content="Save" Background="White" FontSize="10" Margin="0,5,0,0" HorizontalAlignment="Center" Foreground="#196862"/>
+                        <Button Content="Cancel" Background="White" FontSize="10" Margin="10,5,0,0" HorizontalAlignment="Center" Foreground="#196862"/>
+                    </StackPanel>
+
+                    <Separator Height="1" Margin="0,15,0,15"/>
+                    
+                    <Label Content="Viewing Privacy" HorizontalAlignment="Center" Foreground="#196862" FontWeight="Bold" FontSize="25" Margin="0,0,0,0" />
+   
+                    <StackPanel HorizontalAlignment="Center">
+                        <RadioButton GroupName="Privacy" Background="#196862" Foreground="#196862" Content="Private" Margin="45,15,45,0"/>
+                        <RadioButton GroupName="Privacy" Background="#196862" Foreground="#196862" Content="Friends" Margin="45,15,45,0"/>
+                        <RadioButton GroupName="Privacy" Background="#196862" Foreground="#196862" Content="Public" Margin="45,15,45,0"/>
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="45,15,45,0">
+                        <Button Content="Save" Background="White" FontSize="10" Margin="0,5,0,0" HorizontalAlignment="Center" Foreground="#196862"/>
+                        <Button Content="Cancel" Background="White" FontSize="10" Margin="10,5,0,0" HorizontalAlignment="Center" Foreground="#196862"/>
+                    </StackPanel>
+
+                    <Separator Height="1" Margin="0,15,0,15"/>
+
+                    <Label Content="Delete Account" HorizontalAlignment="Center" Foreground="#196862" FontWeight="Bold" FontSize="25" Margin="0,0,0,0" />
+
+                    <TextBox x:Name="confirmUsername" Visibility="Collapsed" Margin="45,15,45,0" Background="White"/>
+                    <TextBox x:Name="confirmUsernameWatermark" Margin="45,15,45,0" FontSize="12" Foreground="Gray" Text="Enter Username" Background="White"/>
+                    <TextBox x:Name="confirmPassword" Visibility="Collapsed" Margin="45,15,45,0" Background="White"/>
+                    <TextBox x:Name="confirmPasswordWatermark" Margin="45,15,45,0" FontSize="12" Foreground="Gray" Text="Enter Password" Background="White"/>
+
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="45,15,45,0">
+                        <Button Content="Delete" Background="White" FontSize="10" Margin="0,5,0,0" HorizontalAlignment="Center" Foreground="#196862"/>
+                        <Button Content="Cancel" Background="White" FontSize="10" Margin="10,5,0,0" HorizontalAlignment="Center" Foreground="#196862"/>
+                    </StackPanel>
+
+                    <Separator Height="1" Margin="0,15,0,0"/>
+                </StackPanel>
+
+            </ScrollViewer>
+
             <Grid Grid.Column="2" Grid.Row="0">
-                <DataGrid Name="grdEmployee"  Margin="25,100,25,25" HeadersVisibility="None" ColumnWidth="*" HorizontalScrollBarVisibility="Hidden" Background="#FFF1BE" RowBackground="#FFFDF2" AlternatingRowBackground="#FFF1BE" MinRowHeight="40" CanUserAddRows="False" CanUserDeleteRows="False" BorderThickness="1" BorderBrush="#545d6a">
-                    <DataGrid.CellStyle>
-                        <Style TargetType="DataGridCell" >
-                            <Style.Triggers>
-                                <Trigger Property="IsSelected" Value="True">
-                                    <Setter Property="Background" Value="#75B791"/>
-                                </Trigger>
-                            </Style.Triggers>
-                        </Style>
-                    </DataGrid.CellStyle>
-                </DataGrid>
-                <Label Content="Settings" HorizontalAlignment="Center" Foreground="#FFFDF2" FontWeight="Bold" FontSize="25" Margin="0,50,0,0" VerticalAlignment="Top"/>
+                <Label Content="About" HorizontalAlignment="Center" Foreground="#FFFDF2" FontWeight="Bold" FontSize="25" Margin="0,50,0,0" VerticalAlignment="Top"/>
                 <Separator Height="1" VerticalAlignment="Top" Margin="50,90,50,0"/>
+
+                <Grid Background="#FFF1BE" Margin="20,100,20,20">
+                    <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" TextAlignment="Center" Foreground="#196862" FontSize="16">
+                            Developed: Cole Weber <LineBreak/> <LineBreak/>
+                            Version 1.0 <LineBreak/> <LineBreak/>
+                            © 2020 cpwebs
+                    </TextBlock>
+                </Grid>
+
             </Grid>
         </Grid>
     </Border>

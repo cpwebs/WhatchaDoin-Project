@@ -27,7 +27,7 @@ namespace WhatchaDoin
     public partial class MainWindow : Window
     {
         private List<DateTime> nextDates = new List<DateTime>();
-        private List<DateTime> significantDates = new List<DateTime>();
+        private List<DateTime> highlightedDates = new List<DateTime>();
         private List<String> allEvents = new List<String>();
         private List<String> allFriends = new List<String>();
         private List<String> allFollowing = new List<String>();
@@ -47,11 +47,14 @@ namespace WhatchaDoin
             setLabels();
         }
 
+        /*
+         * Overrides label text so values could be included in label text
+         */
         private void setLabels()
         {
             lblEvents.Content = "Total Events: " + allEvents.Count;
             lblCompleted.Content = "Completed: " + completed;
-            lblAdventure.Content = "Next Adventure: " + compareDates() + " Days";
+            lblAdventure.Content = "Next Adventure: " + findUpComingDate() + " Days";
             lblFriends.Content = "Friends: " + allFriends.Count;
             lblFollowers.Content = "Followers: " + allFollowers.Count;
             lblFollowing.Content = "Following: " + allFollowing.Count;
@@ -132,7 +135,7 @@ namespace WhatchaDoin
                             DateTime dt1 = Convert.ToDateTime(dr[1]);
                             DateTime dt2 = DateTime.Now;
 
-                            if (dt1.Date > dt2.Date) {
+                            if (dt1.Date >= dt2.Date) {
                                 nextDates.Add(dt1);
                             }
                             else
@@ -144,7 +147,7 @@ namespace WhatchaDoin
             }
         }
 
-        private int compareDates()
+        private int findUpComingDate()
         {
             int ret = int.MaxValue;
             foreach(DateTime d in nextDates)
@@ -173,22 +176,90 @@ namespace WhatchaDoin
             using (SqlConnection cnn = new SqlConnection(@"Data Source=(localdb)\MSSQLLocalDB; Initial Catalog=LoginDB; Integrated Security=True;"))
             {
                 cnn.Open();
-                using (SqlCommand c = new SqlCommand("SELECT Date from BucketList", cnn))
-                {
+                SqlCommand c = new SqlCommand("SELECT DISTINCT Activity,Date FROM BucketList WHERE UserName=@username", cnn);
+                c.Parameters.AddWithValue("@username", username);
+
                     using (SqlDataReader dr = c.ExecuteReader())
                     {
                         while (dr.Read())
                         {
-                            significantDates.Add(Convert.ToDateTime(dr[0]));
+                           highlightedDates.Add(Convert.ToDateTime(dr[1]));
                         }
                     }
-                }
+               
             }
         }
 
         private void selectedDate(object sender, SelectionChangedEventArgs e)
         {
-            MessageBox.Show(calendar.SelectedDate.ToString());
+            DateTime dateSelected = Convert.ToDateTime(calendar.SelectedDate);
+            if (highlightedDates.Contains(dateSelected))
+            {
+                using (SqlConnection cnn = new SqlConnection(@"Data Source=(localdb)\MSSQLLocalDB; Initial Catalog=LoginDB; Integrated Security=True;"))
+                {
+                    //"WITH cte AS (SELECT *, ROW_NUMBER() OVER(PARTITION BY Activity ORDER BY Date DESC) AS rn FROM BucketList) SELECT * FROM cte WHERE rn = 1 AND UserName=@username AND Date=@dateSelected"
+                    cnn.Open();
+                    SqlCommand c = new SqlCommand("WITH cte AS (SELECT *, ROW_NUMBER() OVER(PARTITION BY Activity ORDER BY Date DESC) AS rn FROM BucketList) SELECT * FROM cte WHERE rn = 1 AND UserName=@username AND Date=@dateSelected", cnn);
+                    c.Parameters.AddWithValue("@username", username);
+                    c.Parameters.AddWithValue("@dateSelected", dateSelected);
+                    using (SqlDataReader dr = c.ExecuteReader())
+                    {
+                        while (dr.Read())
+                        {
+                            dateTxtBox.Text = calendar.SelectedDate.Value.ToShortDateString();
+                        }
+                    }
+                    SqlDataAdapter sda = new SqlDataAdapter(c);
+                    DataTable dt = new DataTable("activities");
+                    sda.Fill(dt);
+                    grdActivity.ItemsSource = dt.DefaultView;
+                    grdLocation.ItemsSource = dt.DefaultView;
+                    grdTimeSet.ItemsSource = dt.DefaultView;
+                    grdBudget.ItemsSource = dt.DefaultView;
+                    grdReservation.ItemsSource = dt.DefaultView;
+                    
+                    //grdSupplies.ItemsSource = dt.DefaultView;
+                    //grdFriends.ItemsSource = dt.DefaultView;
+                }
+
+                using (SqlConnection cnn = new SqlConnection(@"Data Source=(localdb)\MSSQLLocalDB; Initial Catalog=LoginDB; Integrated Security=True;"))
+                {
+                    //"WITH cte AS (SELECT *, ROW_NUMBER() OVER(PARTITION BY Activity ORDER BY Date DESC) AS rn FROM BucketList) SELECT * FROM cte WHERE rn = 1 AND UserName=@username AND Date=@dateSelected"
+                    cnn.Open();
+                    SqlCommand c = new SqlCommand("SELECT DISTINCT Supplies FROM BucketList WHERE UserName=@username AND Date=@dateSelected AND Supplies IS NOT NULL AND Supplies != ''", cnn);
+                    c.Parameters.AddWithValue("@username", username);
+                    c.Parameters.AddWithValue("@dateSelected", dateSelected);
+                    SqlDataAdapter sda = new SqlDataAdapter(c);
+                    DataTable dt = new DataTable("activities");
+                    sda.Fill(dt);
+                    grdSupplies.ItemsSource = dt.DefaultView;
+                }
+
+                using (SqlConnection cnn = new SqlConnection(@"Data Source=(localdb)\MSSQLLocalDB; Initial Catalog=LoginDB; Integrated Security=True;"))
+                {
+                    //"WITH cte AS (SELECT *, ROW_NUMBER() OVER(PARTITION BY Activity ORDER BY Date DESC) AS rn FROM BucketList) SELECT * FROM cte WHERE rn = 1 AND UserName=@username AND Date=@dateSelected"
+                    cnn.Open();
+                    SqlCommand c = new SqlCommand("SELECT DISTINCT Friends FROM BucketList WHERE UserName=@username AND Date=@dateSelected AND Friends IS NOT NULL AND Friends != ''", cnn);
+                    c.Parameters.AddWithValue("@username", username);
+                    c.Parameters.AddWithValue("@dateSelected", dateSelected);
+                    SqlDataAdapter sda = new SqlDataAdapter(c);
+                    DataTable dt = new DataTable("activities");
+                    sda.Fill(dt);
+                    grdFriends.ItemsSource = dt.DefaultView;
+                }
+            }
+            else
+            {
+                grdActivity.ItemsSource = null;
+                dateTxtBox.Text = null;
+                grdLocation.ItemsSource = null;
+                grdTimeSet.ItemsSource = null;
+                grdBudget.ItemsSource = null;
+                grdReservation.ItemsSource = null;
+                grdSupplies.ItemsSource = null;
+                grdFriends.ItemsSource = null;
+            }
+
         }
 
         private void CommandBinding_CanExecute(object sender, CanExecuteRoutedEventArgs e)
@@ -237,6 +308,9 @@ namespace WhatchaDoin
             }
         }
 
+        /*
+         * Navigation links and keeps window size consistent among windows
+         */
         private void ListViewMenu_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             switch (((ListViewItem)((ListView)sender).SelectedItem).Name)
@@ -283,6 +357,20 @@ namespace WhatchaDoin
                     friend.Show();
                     this.Close();
                     break;
+                case "Memories":
+                    MemoriesScreen memories = new MemoriesScreen(username);
+                    memories.Height = this.ActualHeight;
+                    memories.Width = this.ActualWidth;
+                    memories.Top = this.Top;
+                    memories.Left = this.Left;
+                    memories.WindowStartupLocation = this.WindowStartupLocation;
+                    if (this.WindowState == System.Windows.WindowState.Maximized)
+                    {
+                        memories.WindowState = System.Windows.WindowState.Maximized;
+                    }
+                    memories.Show();
+                    this.Close();
+                    break;
                 case "Discover":
                     DiscoverScreen discover = new DiscoverScreen(username);
                     discover.Height = this.ActualHeight;
@@ -322,6 +410,9 @@ namespace WhatchaDoin
             }
         }
 
+        /*
+         * calls functions to display highlighted events on calendar
+         */
         private void calendarButton_Loaded(object sender, EventArgs e)
         {
             CalendarDayButton button = (CalendarDayButton)sender;
@@ -330,14 +421,20 @@ namespace WhatchaDoin
             button.DataContextChanged += new DependencyPropertyChangedEventHandler(calendarButton_DataContextChanged);
         }
 
+        /*
+         * highlights event on calendar
+         */
         private void HighlightDay(CalendarDayButton button, DateTime date)
         {
-            if (significantDates.Contains(date))
+            if (highlightedDates.Contains(date))
                 button.Background = (SolidColorBrush)new BrushConverter().ConvertFromString("#75B791");
             else
                 button.Background = (SolidColorBrush)new BrushConverter().ConvertFromString("#FFF1BE");
         }
 
+        /*
+         * data context change event on calendar
+         */
         private void calendarButton_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
             CalendarDayButton button = (CalendarDayButton)sender;
