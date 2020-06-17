@@ -24,12 +24,22 @@ namespace WhatchaDoin
     /// </summary>
     public partial class MemoriesScreen : Window
     {
-        public string username;
+        //all event dates which are highlighted on calendar
         private List<DateTime> highlightedDates = new List<DateTime>();
-        DataSet ds;
-        string strName, imageName;
-        string constr = @"Data Source=(localdb)\MSSQLLocalDB; Initial Catalog=LoginDB; Integrated Security=True;";
 
+        //username of user currently using application
+        private string username;
+
+        //SQL Server connection string
+        string sqlConnectionString = @"Data Source=(localdb)\MSSQLLocalDB; Initial Catalog=LoginDB; Integrated Security=True;";
+
+        //Dataset that helps with images and their DB
+        DataSet ds;
+
+        //file image names
+        string strName, imageName;
+
+        //lists events on that selected day
         private List<String> selectedDayEvents = new List<String>();
 
         public MemoriesScreen(string user)
@@ -41,13 +51,18 @@ namespace WhatchaDoin
             
         }
 
+        /*
+         * Gets dates from DB that are in the future of the user
+         */
         private void retrieveDatesToDisplay()
         {
-            using (SqlConnection cnn = new SqlConnection(@"Data Source=(localdb)\MSSQLLocalDB; Initial Catalog=LoginDB; Integrated Security=True;"))
+            using (SqlConnection cnn = new SqlConnection(sqlConnectionString))
             {
                 cnn.Open();
-                using (SqlCommand c = new SqlCommand("SELECT Date from BucketList", cnn))
+                using (SqlCommand c = new SqlCommand("SELECT Date from BucketList WHERE UserName = @user", cnn))
                 {
+                    c.Parameters.AddWithValue("@user", username);
+
                     using (SqlDataReader dr = c.ExecuteReader())
                     {
                         while (dr.Read())
@@ -59,13 +74,16 @@ namespace WhatchaDoin
             }
         }
 
+        /*
+         * Shows and displays events of selected day when clicked on calendar
+         */
         private void selectedDate(object sender, SelectionChangedEventArgs e)
         {
             String dis = "";
             DateTime dateSelected = Convert.ToDateTime(calendar.SelectedDate);
             if (highlightedDates.Contains(dateSelected))
             {
-                using (SqlConnection cnn = new SqlConnection(@"Data Source=(localdb)\MSSQLLocalDB; Initial Catalog=LoginDB; Integrated Security=True;"))
+                using (SqlConnection cnn = new SqlConnection(sqlConnectionString))
                 {
                     cnn.Open();
                     SqlCommand c = new SqlCommand("SELECT DISTINCT Activity FROM BucketList WHERE UserName=@username AND Date=@dateSelected", cnn);
@@ -91,6 +109,9 @@ namespace WhatchaDoin
             }
         }
 
+        /*
+         * Various funtions allow closing, maximizing, etc. capabilities of window
+         */
         private void CommandBinding_CanExecute(object sender, CanExecuteRoutedEventArgs e)
         {
             e.CanExecute = true;
@@ -137,6 +158,9 @@ namespace WhatchaDoin
             }
         }
 
+        /*
+         * Navigation links and keeps window size consistent among windows
+         */
         private void ListViewMenu_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             switch (((ListViewItem)((ListView)sender).SelectedItem).Name)
@@ -236,6 +260,9 @@ namespace WhatchaDoin
             }
         }
 
+        /*
+         * calls functions to display highlighted events on calendar
+         */
         private void calendarButton_Loaded(object sender, EventArgs e)
         {
             CalendarDayButton button = (CalendarDayButton)sender;
@@ -244,6 +271,9 @@ namespace WhatchaDoin
             button.DataContextChanged += new DependencyPropertyChangedEventHandler(calendarButton_DataContextChanged);
         }
 
+        /*
+         * highlights event on calendar
+         */
         private void HighlightDay(CalendarDayButton button, DateTime date)
         {
             if (highlightedDates.Contains(date))
@@ -262,6 +292,9 @@ namespace WhatchaDoin
             HighlightDay(button, date);
         }
 
+        /*
+         * Browses image files from Windows File Explorer so user can select image file
+         */
         private void btnBrowse_Click(object sender, RoutedEventArgs e)
         {
             try
@@ -282,30 +315,20 @@ namespace WhatchaDoin
             }
         }
 
+        /*
+         * Saves image into DB with byte array as data
+         */
         private void btnSave_Click(object sender, RoutedEventArgs e)
         {
-            insertImageData();
-        }
-
-        private void insertImageData()
-        {
-
             string activityName = activity.Text;
-            string memories = memoriesBlock.Text;
-            string askedAgain = again.Text;
-            int eventRating = rating.Value;
-            string recommending = recommend.Text;
-            string askFeedback = feedback.Text;
 
-
-            if (activityName.Length.Equals("") || activityName==null)
+            if (activityName.Length.Equals("") || activityName == null)
             {
                 MessageBox.Show("Activity Not Entered");
             }
 
             else
             {
-
                 try
                 {
                     if (imageName != "")
@@ -322,7 +345,7 @@ namespace WhatchaDoin
                         //Close a file stream
                         fs.Close();
 
-                        using (SqlConnection conn = new SqlConnection(constr))
+                        using (SqlConnection conn = new SqlConnection(sqlConnectionString))
                         {
                             conn.Open();
                             string sql = "INSERT into Image(id,img,UserName,Activity) VALUES('" + strName + "',@img, @user, @activity)";
@@ -332,13 +355,6 @@ namespace WhatchaDoin
                                 cmd.Parameters.Add(new SqlParameter("img", imgByteArr));
                                 cmd.Parameters.AddWithValue("@user", username);
                                 cmd.Parameters.AddWithValue("@activity", activityName);
-                                /*
-                                cmd.Parameters.AddWithValue("@memories", memories);
-                                cmd.Parameters.AddWithValue("@askedAgain", askedAgain);
-                                cmd.Parameters.AddWithValue("@eventRating", eventRating);
-                                cmd.Parameters.AddWithValue("@recommending", recommending);
-                                cmd.Parameters.AddWithValue("@askFeedback", askFeedback);
-                                */
                                 int result = cmd.ExecuteNonQuery();
                                 if (result == 1)
                                 {
@@ -357,11 +373,17 @@ namespace WhatchaDoin
             }
         }
 
+        /*
+         * Displays all images saved in that memory
+         */
         private void cbImages_DropDownOpened(object sender, EventArgs e)
         {
             BindImageList();
         }
 
+        /*
+         * Displays image when file selected and dropdown closes
+         */
         private void cbImages_DropDownClosed(object sender, EventArgs e)
         {
             DataTable dataTable = ds.Tables[0];
@@ -386,11 +408,13 @@ namespace WhatchaDoin
                     bi.StreamSource = ms;
                     bi.EndInit();
                     image2.Source = bi;
-
                 }
             }
         }
 
+        /*
+         * reinstates watermark when textbox is empty or displays textbox when value is entered
+         */
         private void memoriesBlock_LostFocus(object sender, RoutedEventArgs e)
         {
             if (string.IsNullOrEmpty(memoriesBlock.Text))
@@ -400,6 +424,9 @@ namespace WhatchaDoin
             }
         }
 
+        /*
+         * focuses and makes the textbox visible when watermark box is clicked
+         */
         private void memoriesBlockWatermark_GotFocus(object sender, RoutedEventArgs e)
         {
             memoriesBlockWatermark.Visibility = Visibility.Collapsed;
@@ -407,11 +434,17 @@ namespace WhatchaDoin
             memoriesBlock.Focus();
         }
 
+        /*
+         * changes the color of selected item of dropdown
+         */
         private void again_DropDownOpened(object sender, EventArgs e)
         {
             again.Foreground = new SolidColorBrush(Colors.Black);
         }
 
+        /*
+         * reinstates watermark when textbox is empty or displays textbox when value is entered
+         */
         private void feedback_LostFocus(object sender, RoutedEventArgs e)
         {
             if (string.IsNullOrEmpty(feedback.Text))
@@ -421,6 +454,9 @@ namespace WhatchaDoin
             }
         }
 
+        /*
+         * focuses and makes the textbox visible when watermark box is clicked
+         */
         private void feedbackWatermark_GotFocus(object sender, RoutedEventArgs e)
         {
             feedbackWatermark.Visibility = Visibility.Collapsed;
@@ -428,6 +464,9 @@ namespace WhatchaDoin
             feedback.Focus();
         }
 
+        /*
+         * reinstates watermark when textbox is empty or displays textbox when value is entered
+         */
         private void activity_LostFocus(object sender, RoutedEventArgs e)
         {
             if (string.IsNullOrEmpty(activity.Text))
@@ -437,6 +476,9 @@ namespace WhatchaDoin
             }
         }
 
+        /*
+         * focuses and makes the textbox visible when watermark box is clicked
+         */
         private void activityWatermark_GotFocus(object sender, RoutedEventArgs e)
         {
             activityWatermark.Visibility = Visibility.Collapsed;
@@ -444,17 +486,20 @@ namespace WhatchaDoin
             activity.Focus();
         }
 
+        /*
+         * retrieves all values from specified memory
+         */
         private void loadMemories(object sender, RoutedEventArgs e)
         {
             string activityName = activity.Text;
 
             try
             {
-                using (SqlConnection conn = new SqlConnection(constr))
+                using (SqlConnection conn = new SqlConnection(sqlConnectionString))
                 {
                     conn.Open();
 
-                    string CmdString = "SELECT * FROM Image WHERE UserName = @username AND Activity = @activity";
+                    string CmdString = "SELECT * FROM Image WHERE UserName = @username AND Activity = @activity AND Rating IS NOT NULL";
 
                     SqlCommand cmd = new SqlCommand(CmdString, conn);
                     cmd.Parameters.AddWithValue("@username", username);
@@ -481,23 +526,30 @@ namespace WhatchaDoin
 
                         again.Foreground = new SolidColorBrush(Colors.Black);
 
+                        addMemoryEvent.Content = "Update";
                     }
                 }
             }
 
-            catch (Exception ex)
+            catch (Exception)
             {
-                MessageBox.Show(ex.Message);
+                MessageBox.Show("Incorrect Event");
             }
 
 
         }
 
+        /*
+         * changes the color of selected item of dropdown
+         */
         private void recommend_DropDownOpened(object sender, EventArgs e)
         {
             recommend.Foreground = new SolidColorBrush(Colors.Black);
         }
 
+        /*
+         * Deletes image of selected image from dropdown
+         */
         private void btnDelete_Click(object sender, RoutedEventArgs e)
         {
             if(cbImages.Text.Equals("Please Select"))
@@ -517,7 +569,7 @@ namespace WhatchaDoin
 
                 try
                 {
-                    using (SqlConnection cnn = new SqlConnection(@"Data Source=(localdb)\MSSQLLocalDB; Initial Catalog=LoginDB; Integrated Security=True;"))
+                    using (SqlConnection cnn = new SqlConnection(sqlConnectionString))
                     {
                         CmdString = "DELETE FROM Image WHERE UserName = @username AND Activity = @eventName AND id = @imageID";
 
@@ -546,9 +598,11 @@ namespace WhatchaDoin
             }
         }
 
+        /*
+         * add or updates values to memory in DB
+         */
         private void addMemory(object sender, RoutedEventArgs e)
         {
-
             string activityName = activity.Text;
             string memories = memoriesBlock.Text;
             string askedAgain = again.Text;
@@ -556,30 +610,75 @@ namespace WhatchaDoin
             string recommending = recommend.Text;
             string askFeedback = feedback.Text;
 
-            SqlConnection sqlCon = new SqlConnection(@"Data Source=(localdb)\MSSQLLocalDB; Initial Catalog=LoginDB; Integrated Security=True;");
-            sqlCon.Open();
-
-            String insStmt = "INSERT INTO Image (UserName,Activity,SpecificMemories,Again,Rating, Recommendation, Feedback) VALUES( @user, @activity, @memories, @askedAgain, @eventRating, @recommending, @askFeedback);";
-
-            using (SqlConnection cnn = new SqlConnection(@"Data Source=(localdb)\MSSQLLocalDB; Initial Catalog=LoginDB; Integrated Security=True;"))
+            if (addMemoryEvent.Content.Equals("Add"))
             {
-                cnn.Open();
-                SqlCommand insCmd = new SqlCommand(insStmt, cnn);
-                // use sqlParameters to prevent sql injection!
-                // values are retrieve from variables defined in program
-                insCmd.Parameters.AddWithValue("@user", username);
-                insCmd.Parameters.AddWithValue("@activity", activityName);
-                insCmd.Parameters.AddWithValue("@memories", memories);
-                insCmd.Parameters.AddWithValue("@askedAgain", askedAgain);
-                insCmd.Parameters.AddWithValue("@eventRating", eventRating);
-                insCmd.Parameters.AddWithValue("@recommending", recommending);
-                insCmd.Parameters.AddWithValue("@askFeedback", askFeedback);
+                try
+                {
+                    String insStmt = "INSERT INTO Image (UserName,Activity,SpecificMemories,Again,Rating, Recommendation, Feedback) VALUES(@user, @activity, @memories, @askedAgain, @eventRating, @recommending, @askFeedback);";
 
-                insCmd.ExecuteNonQuery();
-                MessageBox.Show("Memory successfully created!");
+                    using (SqlConnection cnn = new SqlConnection(sqlConnectionString))
+                    {
+                        cnn.Open();
+                        SqlCommand insCmd = new SqlCommand(insStmt, cnn);
+                        // use sqlParameters to prevent sql injection!
+                        // values are retrieve from variables defined in program
+                        insCmd.Parameters.AddWithValue("@user", username);
+                        insCmd.Parameters.AddWithValue("@activity", activityName);
+                        insCmd.Parameters.AddWithValue("@memories", memories);
+                        insCmd.Parameters.AddWithValue("@askedAgain", askedAgain);
+                        insCmd.Parameters.AddWithValue("@eventRating", eventRating);
+                        insCmd.Parameters.AddWithValue("@recommending", recommending);
+                        insCmd.Parameters.AddWithValue("@askFeedback", askFeedback);
+
+                        insCmd.ExecuteNonQuery();
+                        addMemoryEvent.Content = "Add";
+                        clearFields(this, new RoutedEventArgs());
+                        MessageBox.Show("Memory successfully created!");
+                    }
+                }
+                catch (Exception)
+                {
+                    MessageBox.Show("Please Enter Approximate Values for Fields");
+                }
+            }
+            else if(addMemoryEvent.Content.Equals("Update"))
+            {
+                try
+                {
+                    //String insStmt = "UPDATE BucketList SET Activity = @activity, Date = @date, UserName = @user, TimeSet = @time, Budget = @money, Reservation = @reservation, Location = @location WHERE UserName = @user AND Activity = @activity";
+
+                    String insStmt = "Update Image SET UserName = @user , Activity = @activity, SpecificMemories = @memories, Again = @askedAgain, Rating = @eventRating, Recommendation = @recommending, Feedback = @askFeedback WHERE UserName = @user AND Activity = @activity";
+
+                    using (SqlConnection cnn = new SqlConnection(sqlConnectionString))
+                    {
+                        cnn.Open();
+                        SqlCommand insCmd = new SqlCommand(insStmt, cnn);
+                        // use sqlParameters to prevent sql injection!
+                        // values are retrieve from variables defined in program
+                        insCmd.Parameters.AddWithValue("@user", username);
+                        insCmd.Parameters.AddWithValue("@activity", activityName);
+                        insCmd.Parameters.AddWithValue("@memories", memories);
+                        insCmd.Parameters.AddWithValue("@askedAgain", askedAgain);
+                        insCmd.Parameters.AddWithValue("@eventRating", eventRating);
+                        insCmd.Parameters.AddWithValue("@recommending", recommending);
+                        insCmd.Parameters.AddWithValue("@askFeedback", askFeedback);
+
+                        insCmd.ExecuteNonQuery();
+                        addMemoryEvent.Content = "Add";
+                        clearFields(this, new RoutedEventArgs());
+                        MessageBox.Show("Memory successfully updated!");
+                    }
+                }
+                catch (Exception)
+                {
+                    MessageBox.Show("Please Enter Approximate Values for Fields");
+                }
             }
         }
 
+        /*
+         * Clears all memory fields
+         */
         private void clearFields(object sender, RoutedEventArgs e)
         {
             memoriesBlock.Text = "";
@@ -589,6 +688,9 @@ namespace WhatchaDoin
             feedback.Text = "";
         }
 
+        /*
+         * retrieves images and binds them to get displayed
+         */
         private void BindImageList()
         {
             string activityName = activity.Text;
@@ -602,7 +704,7 @@ namespace WhatchaDoin
             {
                 try
                 {
-                    using (SqlConnection conn = new SqlConnection(constr))
+                    using (SqlConnection conn = new SqlConnection(sqlConnectionString))
                     {
                         conn.Open();
 
@@ -634,6 +736,5 @@ namespace WhatchaDoin
                 }
             }
         }
-
     }
 }

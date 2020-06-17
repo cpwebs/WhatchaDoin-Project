@@ -62,6 +62,8 @@
                             Command="{x:Static SystemCommands.CloseWindowCommand}" RenderTransformOrigin="0.92,0.398" Width="36"/>
                 </StackPanel>
             </Grid>
+            
+            <!--Fields of registering user-->
             <Border Background="#75B791" CornerRadius="20" Margin="30, 30, 30, 30">
                 <StackPanel Margin="0,20,0,30">
                     <Label Content="Register" Foreground="#FFF1BE" FontSize="25" HorizontalAlignment="Center"/>

@@ -50,6 +50,7 @@
                 </Setter>
             </Style>
 
+            <!--Override default calendar values to stretch dates and fill appropriately-->
             <Style TargetType="CalendarDayButton">
                 <Setter Property="Margin"  Value="6,7,6,7"/>
                 <Setter Property="FontSize" Value="14"/>
@@ -100,18 +101,6 @@
                 <RowDefinition MinHeight="600" Height="600*"/>
             </Grid.RowDefinitions>
 
-            <!--Caption buttons-->
-            <StackPanel Grid.Column="4" Orientation="Horizontal" HorizontalAlignment="Right"  VerticalAlignment="Top" Width="140" Height="40" Background="#FFF1BE">
-                <Button Style="{StaticResource MinimizeButtonStyle}" WindowChrome.IsHitTestVisibleInChrome="True" ToolTip="Minimize"
-                            Command="{x:Static SystemCommands.MinimizeWindowCommand}"/>
-                <Button x:Name="RestoreButton" Visibility="Collapsed" Style="{StaticResource RestoreButtonStyle}" 
-                            Command="{x:Static SystemCommands.RestoreWindowCommand}" WindowChrome.IsHitTestVisibleInChrome="True" ToolTip="Restore"/>
-                <Button x:Name="MaximizeButton" Visibility="Visible" Style="{StaticResource MaximizeButtonStyle}" 
-                            Command="{x:Static SystemCommands.MaximizeWindowCommand}" WindowChrome.IsHitTestVisibleInChrome="True" ToolTip="Maximize" />
-                <Button Style="{StaticResource CloseButtonStyle}" WindowChrome.IsHitTestVisibleInChrome="True" ToolTip="Close"
-                            Command="{x:Static SystemCommands.CloseWindowCommand}"/>
-            </StackPanel>
-
             <!--Menu bar-->
             <Grid Grid.Column="0" Grid.Row="0" x:Name="GridMenu" HorizontalAlignment="Left" Background="#FFF1BE">
                 <ListView x:Name="ListViewMenu" Width="55" VerticalAlignment="Center" Foreground="#196862" ScrollViewer.HorizontalScrollBarVisibility="Disabled" SelectionChanged="ListViewMenu_SelectionChanged" Margin="0,0,0,0">
@@ -153,42 +142,29 @@
                 </ListView>
             </Grid>
 
-
-
-            <ScrollViewer Grid.Column="0" Grid.Row="0" Margin="65,0,0,0" VerticalAlignment="Top">
+            <!--External Sources Column-->
+            <ScrollViewer Grid.Column="0" Grid.Row="0" Margin="60,0,0,0" VerticalAlignment="Top">
                 <Viewbox>
-                    <StackPanel Orientation="Vertical" Margin="5,0,0,5" VerticalAlignment="Top">
-
-                        <cefSharp:ChromiumWebBrowser Height="260" Width="260" Margin="0,15,0,5" ZoomLevelIncrement="1" EnableResizeHackForIssue2779="True" FrameLoadStart="Browser_OnFrameLoadStart"
+                    <StackPanel Orientation="Vertical" Margin="0,0,0,5" VerticalAlignment="Top">
+                        <cefSharp:ChromiumWebBrowser Height="260" Width="260" Margin="0,15,0,5" ZoomLevelIncrement="1" EnableResizeHackForIssue2779="True" FrameLoadStart="ChromiumWebBrowser_FrameLoadStart"
                                 x:Name="ChromiumWebBrowser"
                                 Address="https://www.instagram.com/nature/"/>
-
-                        <cefSharp:ChromiumWebBrowser Height="260" Width="260" Margin="0,0,0,5" ZoomLevelIncrement="1" EnableResizeHackForIssue2779="True" FrameLoadStart="Browser_OnFrameLoadStart"
+                        <cefSharp:ChromiumWebBrowser Height="260" Width="260" Margin="0,0,0,5" ZoomLevelIncrement="1" EnableResizeHackForIssue2779="True" FrameLoadStart="ChromiumWebBrowser1_FrameLoadStart"
                                 x:Name="ChromiumWebBrowser1"
                                 Address="https://www.facebook.com/NatGeoAdventure"/>
-
-                        <cefSharp:ChromiumWebBrowser Height="260" Width="260" Margin="0,0,0,5" ZoomLevelIncrement="1" EnableResizeHackForIssue2779="True" FrameLoadStart="Browser_OnFrameLoadStart"
+                        <cefSharp:ChromiumWebBrowser Height="260" Width="260" Margin="0,0,0,5" ZoomLevelIncrement="1" EnableResizeHackForIssue2779="True" FrameLoadStart="ChromiumWebBrowser2_FrameLoadStart"
                                 x:Name="ChromiumWebBrowser2"
                                 Address="https://www.msn.com/en-us/travel/tripideas/the-most-beautiful-vacation-spot-in-every-state/ss-AABOjFu"/>
-
-                        <cefSharp:ChromiumWebBrowser Height="260" Width="260" Margin="0,0,0,5" ZoomLevelIncrement="1" EnableResizeHackForIssue2779="True" FrameLoadStart="Browser_OnFrameLoadStart"
+                        <cefSharp:ChromiumWebBrowser Height="260" Width="260" Margin="0,0,0,5" ZoomLevelIncrement="1" EnableResizeHackForIssue2779="True" FrameLoadStart="ChromiumWebBrowser3_FrameLoadStart"
                                 x:Name="ChromiumWebBrowser3"
                                 Address="https://www.msn.com/en-us/travel/tripideas/stunning-photos-of-27-places-around-the-world-that-you-should-visit-before-they-disappear-forever/ss-BBUvkLe"/>
-                        <!--
-                                       <WebBrowser Name="WB" Source="https://www.instagram.com/nature/" Margin="0,10,0,10"/>
-
-                        <WebBrowser Name="WB3" Source="https://www.facebook.com/NatGeoAdventure" Margin="0,0,0,10" />
-                    
-                          <WebBrowser Name="WB2" Source="https://www.msn.com/en-us/travel/tripideas/the-most-beautiful-vacation-spot-in-every-state/ss-AABOjFu" Margin="0,0,0,10"/>
-
-                            <WebBrowser Name="WB4" Source="https://www.msn.com/en-us/travel/tripideas/stunning-photos-of-27-places-around-the-world-that-you-should-visit-before-they-disappear-forever/ss-BBUvkLe" Margin="0,0,0,0" /> -->
-
                     </StackPanel>
                 </Viewbox>
             </ScrollViewer>
 
             <GridSplitter Grid.Column="1" Grid.Row="0" Width="5" Margin="0,25,0,25" HorizontalAlignment="Stretch" ResizeDirection="Columns" ToolTip="Drag left-right to resize" ResizeBehavior="BasedOnAlignment"/>
 
+            <!--Calendar View Column-->
             <Grid Grid.Column="2" Grid.Row="0" Background="#FFF1BE" Margin="0,25,0,25">
                 <Viewbox>
                     <Calendar x:Name="calendar" SelectedDatesChanged="selectedDate" Background="#FFF1BE" IsTodayHighlighted="False">
@@ -203,6 +179,7 @@
 
             <GridSplitter Grid.Column="3" Grid.Row="0" Width="5" Margin="0,25,0,25" HorizontalAlignment="Stretch" ResizeDirection="Columns" ToolTip="Drag left-right to resize" ResizeBehavior="BasedOnAlignment"/>
 
+            <!--Search User's Data Column-->
             <Grid Grid.Column="4" Grid.Row="0">
                 <DataGrid Name="grdBucketlist" Margin="25,200,25,25" CanUserSortColumns="True" AutoGenerateColumns="False" MinColumnWidth="400" HeadersVisibility="None" HorizontalScrollBarVisibility="Hidden" Background="#FFF1BE" RowBackground="#FFFDF2" AlternatingRowBackground="#FFF1BE" MinRowHeight="40" IsReadOnly="True" CanUserAddRows="False" CanUserDeleteRows="False" BorderThickness="1"  BorderBrush="#545d6a">
                     <DataGrid.Columns>
@@ -250,8 +227,8 @@
                 </DataGrid>
 
                 <Label Content="Search" Foreground="#FFFDF2" FontWeight="Bold" FontSize="30" HorizontalAlignment="Center" Margin="0,45,0,5"/>
-                <TextBox x:Name="txtSearch" LostFocus="txtSearch_LostFocus" Visibility="Collapsed" Height="30" FontSize="17" Background="White" VerticalAlignment="Top"  Margin="20,100,20,5"/>
-                <TextBox x:Name="txtSearchWatermark" GotFocus="txtSearchWatermark_GotFocus" Height="30" FontSize="17" Foreground="Gray" VerticalAlignment="Top" Text="Search User"  Background="White"  Margin="20,100,20,5"/>
+                <TextBox x:Name="txtSearch" LostFocus="txtSearch_LostFocus" Visibility="Collapsed" Height="35" FontSize="17" Background="White" VerticalAlignment="Top"  Margin="20,100,20,5"/>
+                <TextBox x:Name="txtSearchWatermark" GotFocus="txtSearchWatermark_GotFocus" Height="35" FontSize="17" Foreground="Gray" VerticalAlignment="Top" Text="Search User"  Background="White"  Margin="20,100,20,5"/>
 
                 <StackPanel Orientation="Horizontal" Margin="5,150,5,5" HorizontalAlignment="Center">
                     <Button Content="Events" Background="White" FontSize="13" VerticalAlignment="Top" Click="showEvents"/>
@@ -260,6 +237,18 @@
                 </StackPanel>
 
             </Grid>
+
+            <!--Caption buttons-->
+            <StackPanel Grid.Column="4" Orientation="Horizontal" HorizontalAlignment="Right"  VerticalAlignment="Top" Width="140" Height="40" Background="#FFF1BE">
+                <Button Style="{StaticResource MinimizeButtonStyle}" WindowChrome.IsHitTestVisibleInChrome="True" ToolTip="Minimize"
+                            Command="{x:Static SystemCommands.MinimizeWindowCommand}"/>
+                <Button x:Name="RestoreButton" Visibility="Collapsed" Style="{StaticResource RestoreButtonStyle}" 
+                            Command="{x:Static SystemCommands.RestoreWindowCommand}" WindowChrome.IsHitTestVisibleInChrome="True" ToolTip="Restore"/>
+                <Button x:Name="MaximizeButton" Visibility="Visible" Style="{StaticResource MaximizeButtonStyle}" 
+                            Command="{x:Static SystemCommands.MaximizeWindowCommand}" WindowChrome.IsHitTestVisibleInChrome="True" ToolTip="Maximize" />
+                <Button Style="{StaticResource CloseButtonStyle}" WindowChrome.IsHitTestVisibleInChrome="True" ToolTip="Close"
+                            Command="{x:Static SystemCommands.CloseWindowCommand}"/>
+            </StackPanel>
         </Grid>
     </Border>
 </Window>

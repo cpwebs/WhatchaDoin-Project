@@ -25,32 +25,52 @@ namespace WhatchaDoin
 
     public partial class EventScreen : Window
     {
-        private string username;
+        //name of event
         private string eventName;
+
+        //supply adding to event
         private string supply;
+
+        //friend adding to event
         private string friend;
+
+        //counts rows of event
         private int rowCount;
+
+        //all event dates which are highlighted on calendar
         private List<DateTime> highlightedDates = new List<DateTime>();
+
+        //username of user currently using application
+        private string username;
+
+        //SQL Server connection string
+        string sqlConnectionString = @"Data Source=(localdb)\MSSQLLocalDB; Initial Catalog=LoginDB; Integrated Security=True;";
+
+        //lists events on that selected day
         private List<String> selectedDayEvents = new List<String>();
 
         public EventScreen(string user)
         {
-            
             username = user;
             InitializeComponent();
             FillDataGrid();
             retrieveDatesToDisplay();
             StateChanged += MainWindowStateChangeRaised;
-
         }
 
+        /*
+         * Gets dates from DB that are in the future of the user
+         */
         private void retrieveDatesToDisplay()
         {
-            using (SqlConnection cnn = new SqlConnection(@"Data Source=(localdb)\MSSQLLocalDB; Initial Catalog=LoginDB; Integrated Security=True;"))
+            using (SqlConnection cnn = new SqlConnection(sqlConnectionString))
             {
                 cnn.Open();
-                using (SqlCommand c = new SqlCommand("SELECT Date from BucketList", cnn))
+                
+                using (SqlCommand c = new SqlCommand("SELECT Date from BucketList WHERE UserName = @user", cnn))
                 {
+                    c.Parameters.AddWithValue("@user", username);
+
                     using (SqlDataReader dr = c.ExecuteReader())
                     {
                         while (dr.Read())
@@ -62,10 +82,13 @@ namespace WhatchaDoin
             }
         }
 
+        /*
+         * Fills events grid with events of user
+         */
         private void FillDataGrid()
         {
             String CmdString = string.Empty;
-            using (SqlConnection cnn = new SqlConnection(@"Data Source=(localdb)\MSSQLLocalDB; Initial Catalog=LoginDB; Integrated Security=True;"))
+            using (SqlConnection cnn = new SqlConnection(sqlConnectionString))
             {
                 /*
                  Limits distinct values as compared to 
@@ -84,13 +107,16 @@ namespace WhatchaDoin
             }
         }
 
+        /*
+         * Shows and displays events of selected day when clicked on calendar
+         */
         private void selectedDate(object sender, SelectionChangedEventArgs e)
         {
             String dis = "";
             DateTime dateSelected = Convert.ToDateTime(calendar.SelectedDate);
             if (highlightedDates.Contains(dateSelected))
             {
-                using (SqlConnection cnn = new SqlConnection(@"Data Source=(localdb)\MSSQLLocalDB; Initial Catalog=LoginDB; Integrated Security=True;"))
+                using (SqlConnection cnn = new SqlConnection(sqlConnectionString))
                 {
                     cnn.Open();
                     SqlCommand c = new SqlCommand("SELECT DISTINCT Activity FROM BucketList WHERE UserName=@username AND Date=@dateSelected", cnn);
@@ -116,6 +142,9 @@ namespace WhatchaDoin
             }
         }
 
+        /*
+         * Various funtions allow closing, maximizing, etc. capabilities of window
+         */
         private void CommandBinding_CanExecute(object sender, CanExecuteRoutedEventArgs e)
         {
             e.CanExecute = true;
@@ -162,6 +191,9 @@ namespace WhatchaDoin
             }
         }
 
+        /*
+         * Navigation links and keeps window size consistent among windows
+         */
         private void ListViewMenu_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             switch (((ListViewItem)((ListView)sender).SelectedItem).Name)
@@ -261,6 +293,9 @@ namespace WhatchaDoin
             }
         }
 
+        /*
+         * Loads event details
+         */
         private void dataGrid_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
             DataGrid grid = sender as DataGrid;
@@ -294,7 +329,7 @@ namespace WhatchaDoin
             friend = dr[7].ToString();
 
             String CmdString = string.Empty;
-            using (SqlConnection cnn = new SqlConnection(@"Data Source=(localdb)\MSSQLLocalDB; Initial Catalog=LoginDB; Integrated Security=True;"))
+            using (SqlConnection cnn = new SqlConnection(sqlConnectionString))
             {
                 CmdString = "SELECT Supplies FROM BucketList WHERE UserName = @username AND Activity = @eventName AND Supplies IS NOT NULL";
 
@@ -308,7 +343,7 @@ namespace WhatchaDoin
             }
 
             CmdString = string.Empty;
-            using (SqlConnection cnn = new SqlConnection(@"Data Source=(localdb)\MSSQLLocalDB; Initial Catalog=LoginDB; Integrated Security=True;"))
+            using (SqlConnection cnn = new SqlConnection(sqlConnectionString))
             {
                 CmdString = "SELECT DISTINCT Friends FROM BucketList WHERE UserName = @username AND Activity = @eventName AND Friends IS NOT NULL";
 
@@ -322,6 +357,9 @@ namespace WhatchaDoin
             }
         }
 
+        /*
+         * Clears event fields
+         */
         private void clear_Fields(object sender, RoutedEventArgs e)
         {
             addUpdateEvent.Content = "Add\nEvent";
@@ -338,6 +376,9 @@ namespace WhatchaDoin
             grdFriends.ItemsSource = null;
         }
 
+        /*
+         * Adds event to database and updates grid
+         */
         private void addEvent(object sender, RoutedEventArgs e)
         {
             if (addUpdateEvent.Content.ToString().Equals("Add\nEvent"))
@@ -345,11 +386,17 @@ namespace WhatchaDoin
                 string activity = txtActivity.Text;
                 DateTime date = Convert.ToDateTime(dp.SelectedDate);
                 DateTime time = Convert.ToDateTime(timeSet.SelectedTime);
+
+
                 Double money;
 
                 if (budget.Text.Contains("$"))
                 {
                     money = Convert.ToDouble(budget.Text.Substring(1));
+                }
+                else if(budget.Text.Equals(""))
+                {
+                    money = 0;
                 }
                 else
                 {
@@ -359,30 +406,33 @@ namespace WhatchaDoin
                 string supply = testS.Text;
                 string friend = testF.Text;
                 string location = txtLocation.Text;
-
-
-                SqlConnection sqlCon = new SqlConnection(@"Data Source=(localdb)\MSSQLLocalDB; Initial Catalog=LoginDB; Integrated Security=True;");
-                sqlCon.Open();
-
-                String insStmt = "INSERT INTO BucketList (Activity, Date,UserName,TimeSet,Budget,Reservation, Supplies, Friends, Location) VALUES( @activity, @date, @user, @time, @money, @reservation, @supply, @friend, @location );";
-
-                using (SqlConnection cnn = new SqlConnection(@"Data Source=(localdb)\MSSQLLocalDB; Initial Catalog=LoginDB; Integrated Security=True;"))
+                try
                 {
-                    cnn.Open();
-                    SqlCommand insCmd = new SqlCommand(insStmt, cnn);
-                    // use sqlParameters to prevent sql injection!
-                    // values are retrieve from variables defined in program
-                    insCmd.Parameters.AddWithValue("@activity", activity);
-                    insCmd.Parameters.AddWithValue("@date", date);
-                    insCmd.Parameters.AddWithValue("@user", username);
-                    insCmd.Parameters.AddWithValue("@time", time);
-                    insCmd.Parameters.AddWithValue("@money", money);
-                    insCmd.Parameters.AddWithValue("@reservation", reservation);
-                    insCmd.Parameters.AddWithValue("@supply", supply);
-                    insCmd.Parameters.AddWithValue("@friend", friend);
-                    insCmd.Parameters.AddWithValue("@location", location);
-                    insCmd.ExecuteNonQuery();
-                    MessageBox.Show("Event successfully created!");
+
+                    String insStmt = "INSERT INTO BucketList (Activity, Date,UserName,TimeSet,Budget,Reservation, Supplies, Friends, Location) VALUES( @activity, @date, @user, @time, @money, @reservation, @supply, @friend, @location );";
+
+                    using (SqlConnection cnn = new SqlConnection(sqlConnectionString))
+                    {
+                        cnn.Open();
+                        SqlCommand insCmd = new SqlCommand(insStmt, cnn);
+                        // use sqlParameters to prevent sql injection!
+                        // values are retrieve from variables defined in program
+                        insCmd.Parameters.AddWithValue("@activity", activity);
+                        insCmd.Parameters.AddWithValue("@date", date);
+                        insCmd.Parameters.AddWithValue("@user", username);
+                        insCmd.Parameters.AddWithValue("@time", time);
+                        insCmd.Parameters.AddWithValue("@money", money);
+                        insCmd.Parameters.AddWithValue("@reservation", reservation);
+                        insCmd.Parameters.AddWithValue("@supply", supply);
+                        insCmd.Parameters.AddWithValue("@friend", friend);
+                        insCmd.Parameters.AddWithValue("@location", location);
+                        insCmd.ExecuteNonQuery();
+                        MessageBox.Show("Event successfully created!");
+                    }
+                }
+                catch (Exception)
+                {
+                    MessageBox.Show("Please Enter Approximate Values for Fields");
                 }
             }
             else
@@ -405,28 +455,33 @@ namespace WhatchaDoin
                 string friend = testF.Text;
                 string location = txtLocation.Text;
 
-                SqlConnection sqlCon = new SqlConnection(@"Data Source=(localdb)\MSSQLLocalDB; Initial Catalog=LoginDB; Integrated Security=True;");
-                sqlCon.Open();
-
-                String insStmt = "UPDATE BucketList SET Activity = @activity, Date = @date, UserName = @user, TimeSet = @time, Budget = @money, Reservation = @reservation, Location = @location WHERE UserName = @user AND Activity = @activity";
-
-                using (SqlConnection cnn = new SqlConnection(@"Data Source=(localdb)\MSSQLLocalDB; Initial Catalog=LoginDB; Integrated Security=True;"))
+                try
                 {
-                    cnn.Open();
-                    SqlCommand insCmd = new SqlCommand(insStmt, cnn);
-                    // use sqlParameters to prevent sql injection!
-                    // values are retrieve from variables defined in program
-                    insCmd.Parameters.AddWithValue("@activity", activity);
-                    insCmd.Parameters.AddWithValue("@date", date);
-                    insCmd.Parameters.AddWithValue("@user", username);
-                    insCmd.Parameters.AddWithValue("@time", time);
-                    insCmd.Parameters.AddWithValue("@money", money);
-                    insCmd.Parameters.AddWithValue("@reservation", reservation);
-                    insCmd.Parameters.AddWithValue("@supply", supply);
-                    insCmd.Parameters.AddWithValue("@friend", friend);
-                    insCmd.Parameters.AddWithValue("@location", location);
-                    insCmd.ExecuteNonQuery();
-                    MessageBox.Show("Updated successfully!");
+
+                    String insStmt = "UPDATE BucketList SET Activity = @activity, Date = @date, UserName = @user, TimeSet = @time, Budget = @money, Reservation = @reservation, Location = @location WHERE UserName = @user AND Activity = @activity";
+
+                    using (SqlConnection cnn = new SqlConnection(sqlConnectionString))
+                    {
+                        cnn.Open();
+                        SqlCommand insCmd = new SqlCommand(insStmt, cnn);
+                        // use sqlParameters to prevent sql injection!
+                        // values are retrieve from variables defined in program
+                        insCmd.Parameters.AddWithValue("@activity", activity);
+                        insCmd.Parameters.AddWithValue("@date", date);
+                        insCmd.Parameters.AddWithValue("@user", username);
+                        insCmd.Parameters.AddWithValue("@time", time);
+                        insCmd.Parameters.AddWithValue("@money", money);
+                        insCmd.Parameters.AddWithValue("@reservation", reservation);
+                        insCmd.Parameters.AddWithValue("@supply", supply);
+                        insCmd.Parameters.AddWithValue("@friend", friend);
+                        insCmd.Parameters.AddWithValue("@location", location);
+                        insCmd.ExecuteNonQuery();
+                        MessageBox.Show("Updated successfully!");
+                    }
+                }
+                catch (Exception)
+                {
+                    MessageBox.Show("Please Enter Approximate Values for Fields");
                 }
             }
             //populate grid again
@@ -434,40 +489,51 @@ namespace WhatchaDoin
 
         }
 
+        //deletes event from database and updates grid
         private void deleteEvent(object sender, RoutedEventArgs e)
         {
-            //deletes to and from DB
-            String CmdString = string.Empty;
-            using (SqlConnection cnn = new SqlConnection(@"Data Source=(localdb)\MSSQLLocalDB; Initial Catalog=LoginDB; Integrated Security=True;"))
+            try
             {
-                CmdString = "DELETE FROM BucketList WHERE UserName = @username AND Activity = @eventName";
+                //deletes to and from DB
+                String CmdString = string.Empty;
+                using (SqlConnection cnn = new SqlConnection(sqlConnectionString))
+                {
+                    CmdString = "DELETE FROM BucketList WHERE UserName = @username AND Activity = @eventName";
 
-                SqlCommand cmd = new SqlCommand(CmdString, cnn);
-                // values are retrieve from variables defined in program
-                cmd.Parameters.AddWithValue("@username", username);
-                cmd.Parameters.AddWithValue("@eventName", eventName);
-                SqlDataAdapter sda = new SqlDataAdapter(cmd);
-                DataTable dt = new DataTable("Activity");
-                sda.Fill(dt);
-                grdBucketlist.ItemsSource = dt.DefaultView;
+                    SqlCommand cmd = new SqlCommand(CmdString, cnn);
+                    // values are retrieve from variables defined in program
+                    cmd.Parameters.AddWithValue("@username", username);
+                    cmd.Parameters.AddWithValue("@eventName", eventName);
+                    SqlDataAdapter sda = new SqlDataAdapter(cmd);
+                    DataTable dt = new DataTable("Activity");
+                    sda.Fill(dt);
+                    grdBucketlist.ItemsSource = dt.DefaultView;
+                }
+
+                //populate grid again
+                FillDataGrid();
+
+                //clear fields
+                txtActivity.Text = "";
+                txtLocation.Text = "";
+                dp.SelectedDate = null;
+                timeSet.SelectedTime = null;
+                budget.Text = "";
+                reserve.Text = "";
+                testS.Text = "";
+                testF.Text = "";
+                grdSupply.ItemsSource = null;
+                grdFriends.ItemsSource = null;
             }
-
-            //populate grid again
-            FillDataGrid();
-
-            //clear fields
-            txtActivity.Text = "";
-            txtLocation.Text = "";
-            dp.SelectedDate = null;
-            timeSet.SelectedTime = null;
-            budget.Text = "";
-            reserve.Text = "";
-            testS.Text = "";
-            testF.Text = "";
-            grdSupply.ItemsSource = null;
-            grdFriends.ItemsSource = null;
+            catch(Exception)
+            {
+                MessageBox.Show("Cannot Delete Event");
+            }
         }
 
+        /*
+         * check if fields are empty to determine if event can be added
+         */
         private bool fieldsEmpty()
         {
             if(txtActivity.Text=="" && dp.SelectedDate==null && timeSet.SelectedTime==null && budget.Text=="" && reserve.Text=="" && testS.Text=="" && testF.Text=="" && txtLocation.Text=="")
@@ -480,130 +546,49 @@ namespace WhatchaDoin
             }
         }
 
+        /*
+         * adds supply to event
+         */
         private void addSupply(object sender, RoutedEventArgs e)
         {
-            if(fieldsEmpty())
+            if (isEmptySupply())
             {
-                string activity = txtActivity.Text;
-                DateTime date = Convert.ToDateTime(dp.SelectedDate);
-                DateTime time = Convert.ToDateTime(timeSet.SelectedTime);
-                Double money = Convert.ToDouble(budget.Text.Substring(1));
-                string reservation = reserve.Text;
-                string supply = testS.Text;
-                string location = txtLocation.Text;
-
-
-                SqlConnection sqlCon = new SqlConnection(@"Data Source=(localdb)\MSSQLLocalDB; Initial Catalog=LoginDB; Integrated Security=True;");
-                sqlCon.Open();
-
-                String insStmt = "INSERT INTO BucketList (Activity, Date,UserName,TimeSet,Budget,Reservation, Supplies, Location) VALUES( @activity, @date, @user, @time, @money, @reservation, @supply, @location);";
-
-                using (SqlConnection cnn = new SqlConnection(@"Data Source=(localdb)\MSSQLLocalDB; Initial Catalog=LoginDB; Integrated Security=True;"))
+                MessageBox.Show("Event Must Be Created Before More Supplies Can Be Added");
+            }
+            else
+            {
+                if (fieldsEmpty())
                 {
-                    cnn.Open();
-                    SqlCommand insCmd = new SqlCommand(insStmt, cnn);
-                    // use sqlParameters to prevent sql injection!
-                    // values are retrieve from variables defined in program
-                    insCmd.Parameters.AddWithValue("@activity", activity);
-                    insCmd.Parameters.AddWithValue("@date", date);
-                    insCmd.Parameters.AddWithValue("@user", username);
-                    insCmd.Parameters.AddWithValue("@time", time);
-                    insCmd.Parameters.AddWithValue("@money", money);
-                    insCmd.Parameters.AddWithValue("@reservation", reservation);
-                    insCmd.Parameters.AddWithValue("@supply", supply);
-                    insCmd.Parameters.AddWithValue("@location", location);
-                    insCmd.ExecuteNonQuery();
+                    string activity = txtActivity.Text;
+                    DateTime date = Convert.ToDateTime(dp.SelectedDate);
+                    DateTime time = Convert.ToDateTime(timeSet.SelectedTime);
+                    Double money = Convert.ToDouble(budget.Text.Substring(1));
+                    string reservation = reserve.Text;
+                    string supply = testS.Text;
+                    string location = txtLocation.Text;
+
+                    String insStmt = "INSERT INTO BucketList (Activity, Date,UserName,TimeSet,Budget,Reservation, Supplies, Location) VALUES( @activity, @date, @user, @time, @money, @reservation, @supply, @location);";
+
+                    using (SqlConnection cnn = new SqlConnection(sqlConnectionString))
+                    {
+                        cnn.Open();
+                        SqlCommand insCmd = new SqlCommand(insStmt, cnn);
+                        // use sqlParameters to prevent sql injection!
+                        // values are retrieve from variables defined in program
+                        insCmd.Parameters.AddWithValue("@activity", activity);
+                        insCmd.Parameters.AddWithValue("@date", date);
+                        insCmd.Parameters.AddWithValue("@user", username);
+                        insCmd.Parameters.AddWithValue("@time", time);
+                        insCmd.Parameters.AddWithValue("@money", money);
+                        insCmd.Parameters.AddWithValue("@reservation", reservation);
+                        insCmd.Parameters.AddWithValue("@supply", supply);
+                        insCmd.Parameters.AddWithValue("@location", location);
+                        insCmd.ExecuteNonQuery();
+                    }
                 }
-            }
 
-            String CmdString = string.Empty;
-            using (SqlConnection cnn = new SqlConnection(@"Data Source=(localdb)\MSSQLLocalDB; Initial Catalog=LoginDB; Integrated Security=True;"))
-            {
-                CmdString = "SELECT DISTINCT Supplies FROM BucketList WHERE UserName = @username AND Activity = @eventName AND Supplies IS NOT NULL";
-
-                SqlCommand cmd = new SqlCommand(CmdString, cnn);
-                cmd.Parameters.AddWithValue("@username", username);
-                cmd.Parameters.AddWithValue("@eventName", eventName);
-                SqlDataAdapter sda = new SqlDataAdapter(cmd);
-                DataTable dt = new DataTable("Supplies");
-                sda.Fill(dt);
-                grdSupply.ItemsSource = dt.DefaultView;
-            }
-        }
-
-        private void addFriend(object sender, RoutedEventArgs e)
-        {
-            if (fieldsEmpty())
-            {
-                string activity = txtActivity.Text;
-                DateTime date = Convert.ToDateTime(dp.SelectedDate);
-                DateTime time = Convert.ToDateTime(timeSet.SelectedTime);
-                Double money = Convert.ToDouble(budget.Text.Substring(1));
-                string reservation = reserve.Text;
-                string friend = testF.Text;
-                string location = txtLocation.Text;
-
-
-                SqlConnection sqlCon = new SqlConnection(@"Data Source=(localdb)\MSSQLLocalDB; Initial Catalog=LoginDB; Integrated Security=True;");
-                sqlCon.Open();
-
-                String insStmt = "INSERT INTO BucketList (Activity, Date,UserName,TimeSet,Budget,Reservation, Friends, Location) VALUES( @activity, @date, @user, @time, @money, @reservation, @friend, @location );";
-
-                using (SqlConnection cnn = new SqlConnection(@"Data Source=(localdb)\MSSQLLocalDB; Initial Catalog=LoginDB; Integrated Security=True;"))
-                {
-                    cnn.Open();
-                    SqlCommand insCmd = new SqlCommand(insStmt, cnn);
-                    // use sqlParameters to prevent sql injection!
-                    // values are retrieve from variables defined in program
-                    insCmd.Parameters.AddWithValue("@activity", activity);
-                    insCmd.Parameters.AddWithValue("@date", date);
-                    insCmd.Parameters.AddWithValue("@user", username);
-                    insCmd.Parameters.AddWithValue("@time", time);
-                    insCmd.Parameters.AddWithValue("@money", money);
-                    insCmd.Parameters.AddWithValue("@reservation", reservation);
-                    insCmd.Parameters.AddWithValue("@friend", friend);
-                    insCmd.Parameters.AddWithValue("@location", location);
-                    insCmd.ExecuteNonQuery();
-                }
-            }
-
-
-            String CmdString = string.Empty;
-            using (SqlConnection cnn = new SqlConnection(@"Data Source=(localdb)\MSSQLLocalDB; Initial Catalog=LoginDB; Integrated Security=True;"))
-            {
-                CmdString = "SELECT DISTINCT Friends FROM BucketList WHERE UserName = @username AND Activity = @eventName AND Friends IS NOT NULL";
-
-                SqlCommand cmd = new SqlCommand(CmdString, cnn);
-                cmd.Parameters.AddWithValue("@username", username);
-                cmd.Parameters.AddWithValue("@eventName", eventName);
-                SqlDataAdapter sda = new SqlDataAdapter(cmd);
-                DataTable dt = new DataTable("Friends");
-                sda.Fill(dt);
-                grdFriends.ItemsSource = dt.DefaultView;
-            }
-        }
-
-        private void deleteSupply(object sender, RoutedEventArgs e)
-        {
-            if (rowCount > 1)
-            {
                 String CmdString = string.Empty;
-                using (SqlConnection cnn = new SqlConnection(@"Data Source=(localdb)\MSSQLLocalDB; Initial Catalog=LoginDB; Integrated Security=True;"))
-                {
-                    CmdString = "DELETE FROM BucketList WHERE UserName = @username AND Activity = @eventName AND Supplies = @supply";
-
-                    SqlCommand cmd = new SqlCommand(CmdString, cnn);
-                    cmd.Parameters.AddWithValue("@username", username);
-                    cmd.Parameters.AddWithValue("@eventName", eventName);
-                    cmd.Parameters.AddWithValue("@supply", supply);
-                    SqlDataAdapter sda = new SqlDataAdapter(cmd);
-                    DataTable dt = new DataTable("Supplies");
-                    sda.Fill(dt);
-                    grdSupply.ItemsSource = dt.DefaultView;
-                }
-
-                CmdString = string.Empty;
-                using (SqlConnection cnn = new SqlConnection(@"Data Source=(localdb)\MSSQLLocalDB; Initial Catalog=LoginDB; Integrated Security=True;"))
+                using (SqlConnection cnn = new SqlConnection(sqlConnectionString))
                 {
                     CmdString = "SELECT DISTINCT Supplies FROM BucketList WHERE UserName = @username AND Activity = @eventName AND Supplies IS NOT NULL";
 
@@ -615,31 +600,83 @@ namespace WhatchaDoin
                     sda.Fill(dt);
                     grdSupply.ItemsSource = dt.DefaultView;
                 }
-
             }
         }
 
-        private void deleteFriend(object sender, RoutedEventArgs e)
+        /*
+         * checks if friend grid is empty to determine whether or not can call friend function
+         */
+        public bool isEmptyFriend()
         {
-            if (rowCount > 1)
+            if(grdFriends.Items.Count == 0)
             {
-                String CmdString = string.Empty;
-                using (SqlConnection cnn = new SqlConnection(@"Data Source=(localdb)\MSSQLLocalDB; Initial Catalog=LoginDB; Integrated Security=True;"))
-                {
-                    CmdString = "DELETE FROM BucketList WHERE UserName = @username AND Activity = @eventName AND Friends = @friend";
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
 
-                    SqlCommand cmd = new SqlCommand(CmdString, cnn);
-                    cmd.Parameters.AddWithValue("@username", username);
-                    cmd.Parameters.AddWithValue("@eventName", eventName);
-                    cmd.Parameters.AddWithValue("@friend", friend);
-                    SqlDataAdapter sda = new SqlDataAdapter(cmd);
-                    DataTable dt = new DataTable("Event");
-                    sda.Fill(dt);
-                    grdFriends.ItemsSource = dt.DefaultView;
+        /*
+         * checks if supply grid is empty to determine whether or not can call supply function
+         */
+        public bool isEmptySupply()
+        {
+            if (grdSupply.Items.Count == 0)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        /*
+         * adds friend to event
+         */
+        private void addFriend(object sender, RoutedEventArgs e)
+        {
+            if (isEmptyFriend())
+            {
+                MessageBox.Show("Event Must Be Created Before More Friends Can Be Added");
+            }
+            else
+            {
+                if (fieldsEmpty())
+                {
+                    string activity = txtActivity.Text;
+                    DateTime date = Convert.ToDateTime(dp.SelectedDate);
+                    DateTime time = Convert.ToDateTime(timeSet.SelectedTime);
+                    Double money = Convert.ToDouble(budget.Text.Substring(1));
+                    string reservation = reserve.Text;
+                    string friend = testF.Text;
+                    string location = txtLocation.Text;
+
+                    String insStmt = "INSERT INTO BucketList (Activity, Date,UserName,TimeSet,Budget,Reservation, Friends, Location) VALUES( @activity, @date, @user, @time, @money, @reservation, @friend, @location );";
+
+                    using (SqlConnection cnn = new SqlConnection(sqlConnectionString))
+                    {
+                        cnn.Open();
+                        SqlCommand insCmd = new SqlCommand(insStmt, cnn);
+                        // use sqlParameters to prevent sql injection!
+                        // values are retrieve from variables defined in program
+                        insCmd.Parameters.AddWithValue("@activity", activity);
+                        insCmd.Parameters.AddWithValue("@date", date);
+                        insCmd.Parameters.AddWithValue("@user", username);
+                        insCmd.Parameters.AddWithValue("@time", time);
+                        insCmd.Parameters.AddWithValue("@money", money);
+                        insCmd.Parameters.AddWithValue("@reservation", reservation);
+                        insCmd.Parameters.AddWithValue("@friend", friend);
+                        insCmd.Parameters.AddWithValue("@location", location);
+                        insCmd.ExecuteNonQuery();
+                    }
                 }
 
-                CmdString = string.Empty;
-                using (SqlConnection cnn = new SqlConnection(@"Data Source=(localdb)\MSSQLLocalDB; Initial Catalog=LoginDB; Integrated Security=True;"))
+
+                String CmdString = string.Empty;
+                using (SqlConnection cnn = new SqlConnection(sqlConnectionString))
                 {
                     CmdString = "SELECT DISTINCT Friends FROM BucketList WHERE UserName = @username AND Activity = @eventName AND Friends IS NOT NULL";
 
@@ -647,14 +684,106 @@ namespace WhatchaDoin
                     cmd.Parameters.AddWithValue("@username", username);
                     cmd.Parameters.AddWithValue("@eventName", eventName);
                     SqlDataAdapter sda = new SqlDataAdapter(cmd);
-                    DataTable dt = new DataTable("Friend");
+                    DataTable dt = new DataTable("Friends");
                     sda.Fill(dt);
                     grdFriends.ItemsSource = dt.DefaultView;
                 }
-
             }
         }
 
+        /*
+         * deletes supply from event
+         */
+        private void deleteSupply(object sender, RoutedEventArgs e)
+        {
+            if (isEmptySupply())
+            {
+                MessageBox.Show("Event Must Be Created Before Deleting Supplies");
+            }
+            else
+            {
+                if (rowCount > 1)
+                {
+                    String CmdString = string.Empty;
+                    using (SqlConnection cnn = new SqlConnection(sqlConnectionString))
+                    {
+                        CmdString = "DELETE FROM BucketList WHERE UserName = @username AND Activity = @eventName AND Supplies = @supply";
+
+                        SqlCommand cmd = new SqlCommand(CmdString, cnn);
+                        cmd.Parameters.AddWithValue("@username", username);
+                        cmd.Parameters.AddWithValue("@eventName", eventName);
+                        cmd.Parameters.AddWithValue("@supply", supply);
+                        SqlDataAdapter sda = new SqlDataAdapter(cmd);
+                        DataTable dt = new DataTable("Supplies");
+                        sda.Fill(dt);
+                        grdSupply.ItemsSource = dt.DefaultView;
+                    }
+
+                    CmdString = string.Empty;
+                    using (SqlConnection cnn = new SqlConnection(sqlConnectionString))
+                    {
+                        CmdString = "SELECT DISTINCT Supplies FROM BucketList WHERE UserName = @username AND Activity = @eventName AND Supplies IS NOT NULL";
+
+                        SqlCommand cmd = new SqlCommand(CmdString, cnn);
+                        cmd.Parameters.AddWithValue("@username", username);
+                        cmd.Parameters.AddWithValue("@eventName", eventName);
+                        SqlDataAdapter sda = new SqlDataAdapter(cmd);
+                        DataTable dt = new DataTable("Supplies");
+                        sda.Fill(dt);
+                        grdSupply.ItemsSource = dt.DefaultView;
+                    }
+                }
+            }
+        }
+
+        /*
+         * deletes friend from event
+         */
+        private void deleteFriend(object sender, RoutedEventArgs e)
+        {
+            if (isEmptyFriend())
+            {
+                MessageBox.Show("Event Must Be Created Before Deleting Friends");
+            }
+            else
+            {
+                if (rowCount > 1)
+                {
+                    String CmdString = string.Empty;
+                    using (SqlConnection cnn = new SqlConnection(sqlConnectionString))
+                    {
+                        CmdString = "DELETE FROM BucketList WHERE UserName = @username AND Activity = @eventName AND Friends = @friend";
+
+                        SqlCommand cmd = new SqlCommand(CmdString, cnn);
+                        cmd.Parameters.AddWithValue("@username", username);
+                        cmd.Parameters.AddWithValue("@eventName", eventName);
+                        cmd.Parameters.AddWithValue("@friend", friend);
+                        SqlDataAdapter sda = new SqlDataAdapter(cmd);
+                        DataTable dt = new DataTable("Event");
+                        sda.Fill(dt);
+                        grdFriends.ItemsSource = dt.DefaultView;
+                    }
+
+                    CmdString = string.Empty;
+                    using (SqlConnection cnn = new SqlConnection(sqlConnectionString))
+                    {
+                        CmdString = "SELECT DISTINCT Friends FROM BucketList WHERE UserName = @username AND Activity = @eventName AND Friends IS NOT NULL";
+
+                        SqlCommand cmd = new SqlCommand(CmdString, cnn);
+                        cmd.Parameters.AddWithValue("@username", username);
+                        cmd.Parameters.AddWithValue("@eventName", eventName);
+                        SqlDataAdapter sda = new SqlDataAdapter(cmd);
+                        DataTable dt = new DataTable("Friend");
+                        sda.Fill(dt);
+                        grdFriends.ItemsSource = dt.DefaultView;
+                    }
+                }
+            }
+        }
+
+        /*
+         * provides rowcount and supply values from supply grid
+         */
         private void supplyDoubleClick(object sender, MouseButtonEventArgs e)
         {
             DataGrid grid = sender as DataGrid;
@@ -665,6 +794,9 @@ namespace WhatchaDoin
             supply = dr[0].ToString();
         }
 
+        /*
+         * provides rowcount and friend values from friend grid
+         */
         private void friendDoubleClick(object sender, MouseButtonEventArgs e)
         {
             DataGrid grid = sender as DataGrid;
@@ -675,6 +807,9 @@ namespace WhatchaDoin
             friend = dr[0].ToString();
         }
 
+        /*
+         * calls functions to display highlighted events on calendar
+         */
         private void calendarButton_Loaded(object sender, EventArgs e)
         {
             CalendarDayButton button = (CalendarDayButton)sender;
@@ -704,6 +839,9 @@ namespace WhatchaDoin
             HighlightDay(button, date);
         }
 
+        /*
+         * reinstates watermark when textbox is empty or displays textbox when value is entered
+         */
         private void txtActivity_LostFocus(object sender, RoutedEventArgs e)
         {
             if (string.IsNullOrEmpty(txtActivity.Text))
@@ -713,6 +851,9 @@ namespace WhatchaDoin
             }
         }
 
+        /*
+         * focuses and makes the textbox visible when watermark box is clicked
+         */
         private void txtActivityWatermark_GotFocus(object sender, RoutedEventArgs e)
         {
             txtActivityWatermark.Visibility = Visibility.Collapsed;
@@ -720,12 +861,18 @@ namespace WhatchaDoin
             txtActivity.Focus();
         }
 
+        /*
+         * focuses and makes the textbox visible when watermark box is clicked
+         */
         private void dpWatermark_GotFocus(object sender, RoutedEventArgs e)
         {
             dpWatermark.Visibility = Visibility.Collapsed;
             dp.Focus();
         }
 
+        /*
+         * reinstates watermark when textbox is empty or displays textbox when value is entered
+         */
         private void budget_LostFocus(object sender, RoutedEventArgs e)
         {
             if (string.IsNullOrEmpty(budget.Text))
@@ -735,6 +882,9 @@ namespace WhatchaDoin
             }
         }
 
+        /*
+         * focuses and makes the textbox visible when watermark box is clicked
+         */
         private void budgetWatermark_GotFocus(object sender, RoutedEventArgs e)
         {
             budgetWatermark.Visibility = Visibility.Collapsed;
@@ -742,11 +892,17 @@ namespace WhatchaDoin
             budget.Focus();
         }
 
+        /*
+         * changes the color of selected item of dropdown
+         */
         private void reserve_DropDownOpened(object sender, EventArgs e)
         {
             reserve.Foreground= new SolidColorBrush(Colors.Black);
         }
 
+        /*
+         * focuses and makes the textbox visible when watermark box is clicked
+         */
         private void testSWatermark_GotFocus(object sender, RoutedEventArgs e)
         {
             testSWatermark.Visibility = Visibility.Collapsed;
@@ -754,6 +910,9 @@ namespace WhatchaDoin
             testS.Focus();
         }
 
+        /*
+         * reinstates watermark when textbox is empty or displays textbox when value is entered
+         */
         private void testS_LostFocus(object sender, RoutedEventArgs e)
         {
             if (string.IsNullOrEmpty(testS.Text))
@@ -763,6 +922,9 @@ namespace WhatchaDoin
             }
         }
 
+        /*
+         * focuses and makes the textbox visible when watermark box is clicked
+         */
         private void testFWatermark_GotFocus(object sender, RoutedEventArgs e)
         {
             testFWatermark.Visibility = Visibility.Collapsed;
@@ -770,6 +932,9 @@ namespace WhatchaDoin
             testF.Focus();
         }
 
+        /*
+         * reinstates watermark when textbox is empty or displays textbox when value is entered
+         */
         private void testF_LostFocus(object sender, RoutedEventArgs e)
         {
             if (string.IsNullOrEmpty(testF.Text))
@@ -779,6 +944,9 @@ namespace WhatchaDoin
             }
         }
 
+        /*
+         * reinstates watermark when textbox is empty or displays textbox when value is entered
+         */
         private void txtLocation_LostFocus(object sender, RoutedEventArgs e)
         {
             if (string.IsNullOrEmpty(txtLocation.Text))
@@ -788,11 +956,22 @@ namespace WhatchaDoin
             }
         }
 
+        /*
+         * focuses and makes the textbox visible when watermark box is clicked
+         */
         private void txtLocationWatermark_GotFocus(object sender, RoutedEventArgs e)
         {
             txtLocationWatermark.Visibility = Visibility.Collapsed;
             txtLocation.Visibility = Visibility.Visible;
             txtLocation.Focus();
+        }
+
+        /*
+         * if calendar icon is clicked before the watermark textbox then acts as if watermark textbox was clicked
+         */
+        private void dpClicked(object sender, MouseButtonEventArgs e)
+        {
+            dpWatermark_GotFocus(this, new RoutedEventArgs());
         }
     }
 }

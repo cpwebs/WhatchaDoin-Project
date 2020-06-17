@@ -145,51 +145,48 @@
                 </ListView>
             </Grid>
 
-            <Grid Grid.Column="0" Grid.Row="0"  Margin="55,0,0,20">
-                <Label Content="User" HorizontalAlignment="Center" Foreground="#FFFDF2" FontWeight="Bold" FontSize="25" Margin="0,50,0,0" VerticalAlignment="Top"/>
-                <Separator Height="1" VerticalAlignment="Top" Margin="50,90,50,0"/>
+            <!--User Stats Column-->
+            <Viewbox Grid.Column="0" Grid.Row="0" Margin="55,0,0,20" HorizontalAlignment="Left" VerticalAlignment="Top">
+                <StackPanel Orientation="Vertical">
+                    <Label Content="User" Foreground="#FFFDF2" FontWeight="Bold" FontSize="6" Margin="0,0,0,-3"/>
+                    <Separator Height=".2" VerticalAlignment="Top" Margin="2,0,2,0"/>
+                    <Label Name="lblUsername" Content="Username: " FontSize="2.5" Foreground="White" Margin="0,2,0,0"/>
+                    <Label Name="lblPassword" Content="Password: " FontSize="2.5" Foreground="White" Margin="0,2,0,0"/>
+                    <Label Name="lblPrivacy" Content="Privacy: " FontSize="2.5" Foreground="White" Margin="0,2,0,0"/>
+                    <Label Name="lblJoined" Content="Joined: " FontSize="2.5" Foreground="White" Margin="0,2,0,0"/>
+                    <Label Name="lblFriendCode" Content="Friend Code: " FontSize="2.5" Foreground="White" Margin="0,2,0,0"/>
+                </StackPanel>
+            </Viewbox>
 
-                <Grid  Margin="20,100,20,0">
-                    <StackPanel Orientation="Vertical">
-                        <Label Name="lblUsername" Content="Username: " FontSize="17" Foreground="White" Margin="0,22,0,50"/>
-                        <Label Name="lblPassword" Content="Password: " FontSize="17" Foreground="White" Margin="0,2,0,50"/>
-                        <Label Name="lblPrivacy" Content="Privacy: " FontSize="17" Foreground="White" Margin="0,2,0,50"/>
-                        <Label Name="lblJoined" Content="Joined: " FontSize="17" Foreground="White" Margin="0,2,0,50"/>
-                        <Label Name="lblFriendCode" Content="Friend Code: " FontSize="17" Foreground="White" Margin="0,2,0,50"/>
-                    </StackPanel>
-                </Grid>
-
-            </Grid>
-
+            <!--User Change Settings Column-->
             <ScrollViewer Grid.Column="1" Grid.Row="0" Background="#FFF1BE" Margin="0,20,0,20">
                 <StackPanel>
-                    
                     <Label Content="Change Password" HorizontalAlignment="Center" Foreground="#196862" FontWeight="Bold" FontSize="25" Margin="0,15,0,0" />
-                    
-                    <TextBox x:Name="oldPassword" Visibility="Collapsed" Margin="45,15,45,0" Background="White"/>
-                    <TextBox x:Name="oldPasswordWatermark" Margin="45,15,45,0" FontSize="12" Foreground="Gray" Text="Enter Old Password" Background="White"/>
-                    <TextBox x:Name="newPassword" Visibility="Collapsed" Margin="45,15,45,0" Background="White"/>
-                    <TextBox x:Name="newPasswordWatermark" Margin="45,15,45,0" FontSize="12" Foreground="Gray" Text="Enter New Password" Background="White"/>
-                    <TextBox x:Name="repeatPassword" Visibility="Collapsed" Margin="45,15,45,0" Background="White"/>
-                    <TextBox x:Name="repeatPasswordWatermark" Margin="45,15,45,0" FontSize="12" Foreground="Gray" Text="Repeat New Password" Background="White"/>
+
+                    <PasswordBox x:Name="oldPassword" LostFocus="oldPassword_LostFocus" Visibility="Collapsed" Margin="45,15,45,0" Background="White"/>
+                    <TextBox x:Name="oldPasswordWatermark" GotFocus="oldPasswordWatermark_GotFocus" Margin="45,15,45,0" FontSize="12" Foreground="Gray" Text="Enter Old Password" Background="White"/>
+                    <PasswordBox x:Name="newPassword" LostFocus="newPassword_LostFocus" Visibility="Collapsed" Margin="45,15,45,0" Background="White"/>
+                    <TextBox x:Name="newPasswordWatermark" GotFocus="newPasswordWatermark_GotFocus" Margin="45,15,45,0" FontSize="12" Foreground="Gray" Text="Enter New Password" Background="White"/>
+                    <PasswordBox x:Name="repeatPassword" LostFocus="repeatPassword_LostFocus" Visibility="Collapsed" Margin="45,15,45,0" Background="White"/>
+                    <TextBox x:Name="repeatPasswordWatermark" GotFocus="repeatPasswordWatermark_GotFocus" Margin="45,15,45,0" FontSize="12" Foreground="Gray" Text="Repeat New Password" Background="White"/>
 
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="45,15,45,0">
-                        <Button Content="Save" Background="White" FontSize="10" Margin="0,5,0,0" HorizontalAlignment="Center" Foreground="#196862"/>
-                        <Button Content="Cancel" Background="White" FontSize="10" Margin="10,5,0,0" HorizontalAlignment="Center" Foreground="#196862"/>
+                        <Button Content="Save" Background="White" FontSize="10" Margin="0,5,0,0" HorizontalAlignment="Center" Foreground="#196862" Click="savePassword" />
+                        <Button Content="Cancel" Background="White" FontSize="10" Margin="10,5,0,0" HorizontalAlignment="Center" Foreground="#196862" Click="cancelPassword" />
                     </StackPanel>
 
                     <Separator Height="1" Margin="0,15,0,15"/>
-                    
+
                     <Label Content="Viewing Privacy" HorizontalAlignment="Center" Foreground="#196862" FontWeight="Bold" FontSize="25" Margin="0,0,0,0" />
-   
+
                     <StackPanel HorizontalAlignment="Center">
-                        <RadioButton GroupName="Privacy" Background="#196862" Foreground="#196862" Content="Private" Margin="45,15,45,0"/>
-                        <RadioButton GroupName="Privacy" Background="#196862" Foreground="#196862" Content="Friends" Margin="45,15,45,0"/>
-                        <RadioButton GroupName="Privacy" Background="#196862" Foreground="#196862" Content="Public" Margin="45,15,45,0"/>
+                        <RadioButton x:Name="firstRadio" GroupName="Privacy" IsChecked="False" Background="#196862" Foreground="#196862" Content="Private" Margin="45,15,45,0"/>
+                        <RadioButton x:Name="secondRadio" GroupName="Privacy" IsChecked="False" Background="#196862" Foreground="#196862" Content="Friends" Margin="45,15,45,0"/>
+                        <RadioButton x:Name="thirdRadio" GroupName="Privacy" IsChecked="False" Background="#196862" Foreground="#196862" Content="Public" Margin="45,15,45,0"/>
                     </StackPanel>
 
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="45,15,45,0">
-                        <Button Content="Save" Background="White" FontSize="10" Margin="0,5,0,0" HorizontalAlignment="Center" Foreground="#196862"/>
+                        <Button Content="Save" Background="White" FontSize="10" Margin="0,5,0,0" HorizontalAlignment="Center" Foreground="#196862" Click="savePrivacy" />
                         <Button Content="Cancel" Background="White" FontSize="10" Margin="10,5,0,0" HorizontalAlignment="Center" Foreground="#196862"/>
                     </StackPanel>
 
@@ -197,21 +194,21 @@
 
                     <Label Content="Delete Account" HorizontalAlignment="Center" Foreground="#196862" FontWeight="Bold" FontSize="25" Margin="0,0,0,0" />
 
-                    <TextBox x:Name="confirmUsername" Visibility="Collapsed" Margin="45,15,45,0" Background="White"/>
-                    <TextBox x:Name="confirmUsernameWatermark" Margin="45,15,45,0" FontSize="12" Foreground="Gray" Text="Enter Username" Background="White"/>
-                    <TextBox x:Name="confirmPassword" Visibility="Collapsed" Margin="45,15,45,0" Background="White"/>
-                    <TextBox x:Name="confirmPasswordWatermark" Margin="45,15,45,0" FontSize="12" Foreground="Gray" Text="Enter Password" Background="White"/>
+                    <TextBox x:Name="confirmUsername" LostFocus="confirmUsername_LostFocus" Visibility="Collapsed" Margin="45,15,45,0" Background="White"/>
+                    <TextBox x:Name="confirmUsernameWatermark" GotFocus="confirmUsernameWatermark_GotFocus" Margin="45,15,45,0" FontSize="12" Foreground="Gray" Text="Enter Username" Background="White"/>
+                    <PasswordBox x:Name="confirmPassword" LostFocus="confirmPassword_LostFocus" Visibility="Collapsed" Margin="45,15,45,0" Background="White"/>
+                    <TextBox x:Name="confirmPasswordWatermark" GotFocus="confirmPasswordWatermark_GotFocus" Margin="45,15,45,0" FontSize="12" Foreground="Gray" Text="Enter Password" Background="White"/>
 
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="45,15,45,0">
-                        <Button Content="Delete" Background="White" FontSize="10" Margin="0,5,0,0" HorizontalAlignment="Center" Foreground="#196862"/>
-                        <Button Content="Cancel" Background="White" FontSize="10" Margin="10,5,0,0" HorizontalAlignment="Center" Foreground="#196862"/>
+                        <Button Content="Delete" Background="White" FontSize="10" Margin="0,5,0,0" HorizontalAlignment="Center" Foreground="#196862" Click="deleteAccount"/>
+                        <Button Content="Cancel" Background="White" FontSize="10" Margin="10,5,0,0" HorizontalAlignment="Center" Foreground="#196862" Click="cancelDeleteAccount" />
                     </StackPanel>
 
                     <Separator Height="1" Margin="0,15,0,0"/>
                 </StackPanel>
-
             </ScrollViewer>
 
+            <!--About Column-->
             <Grid Grid.Column="2" Grid.Row="0">
                 <Label Content="About" HorizontalAlignment="Center" Foreground="#FFFDF2" FontWeight="Bold" FontSize="25" Margin="0,50,0,0" VerticalAlignment="Top"/>
                 <Separator Height="1" VerticalAlignment="Top" Margin="50,90,50,0"/>

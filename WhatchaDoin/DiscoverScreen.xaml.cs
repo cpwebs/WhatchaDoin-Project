@@ -23,8 +23,20 @@ namespace WhatchaDoin
     /// </summary>
     public partial class DiscoverScreen : Window
     {
-        public string username;
+        //all friends of user
+        private List<String> friendList = new List<String>();
+
+        //all event dates which are highlighted on calendar
         private List<DateTime> highlightedDates = new List<DateTime>();
+
+        //username of user currently using application
+        private string username;
+
+        //SQL Server connection string
+        string sqlConnectionString = @"Data Source=(localdb)\MSSQLLocalDB; Initial Catalog=LoginDB; Integrated Security=True;";
+
+        //lists events on that selected day
+        private List<String> selectedDayEvents = new List<String>();
 
         public DiscoverScreen(string user)
         {
@@ -32,18 +44,89 @@ namespace WhatchaDoin
             InitializeComponent();
             StateChanged += MainWindowStateChangeRaised;
             retrieveDatesToDisplay();
-
-
         }
 
-   
+        /*
+         * determines if user and searched user is friends and populates friendlist
+         */
+        private bool privacySettingFriends()
+        {
+            try
+            {
+                using (SqlConnection cnn = new SqlConnection(sqlConnectionString))
+                {
+                    cnn.Open();
+                    using (SqlCommand c = new SqlCommand("SELECT Friends from Friends WHERE UserName = @user", cnn))
+                    {
+                        c.Parameters.AddWithValue("@user", txtSearch.Text);
+
+                        using (SqlDataReader dr = c.ExecuteReader())
+                        {
+                            while (dr.Read())
+                            {
+                                friendList.Add(dr[0].ToString());
+                            }
+                            if(friendList.Contains(username))
+                            {
+                                return true;
+                            }
+                            else
+                            {
+                                return false;
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
+        /*
+         * retreives privacy of searched user
+         */
+        private string privacySetting()
+        {
+            try
+            {
+                using (SqlConnection cnn = new SqlConnection(sqlConnectionString))
+                {
+                    cnn.Open();
+                    using (SqlCommand c = new SqlCommand("SELECT Privacy from Users WHERE UserName = @user", cnn))
+                    {
+                        c.Parameters.AddWithValue("@user", txtSearch.Text);
+
+                        using (SqlDataReader dr = c.ExecuteReader())
+                        {
+                            while (dr.Read())
+                            {
+                                return dr[0].ToString();
+                            }
+                        }
+                    }
+                }
+            }
+            catch(Exception)
+            {
+                return "";
+            }
+            return "";
+        }
+
+        /*
+         * Gets dates from DB that are in the future of the user
+         */
         private void retrieveDatesToDisplay()
         {
-            using (SqlConnection cnn = new SqlConnection(@"Data Source=(localdb)\MSSQLLocalDB; Initial Catalog=LoginDB; Integrated Security=True;"))
+            using (SqlConnection cnn = new SqlConnection(sqlConnectionString))
             {
                 cnn.Open();
-                using (SqlCommand c = new SqlCommand("SELECT Date from BucketList", cnn))
+                using (SqlCommand c = new SqlCommand("SELECT Date from BucketList WHERE UserName = @user", cnn))
                 {
+                    c.Parameters.AddWithValue("@user", username);
+
                     using (SqlDataReader dr = c.ExecuteReader())
                     {
                         while (dr.Read())
@@ -55,18 +138,44 @@ namespace WhatchaDoin
             }
         }
 
+        /*
+         * Shows and displays events of selected day when clicked on calendar
+         */
         private void selectedDate(object sender, SelectionChangedEventArgs e)
         {
-            if (MessageBox.Show("Do you want to add an event?", "Confirmation", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+            String dis = "";
+            DateTime dateSelected = Convert.ToDateTime(calendar.SelectedDate);
+            if (highlightedDates.Contains(dateSelected))
             {
-                // add event
-            }
-            else
-            {
-                // cancel
+                using (SqlConnection cnn = new SqlConnection(sqlConnectionString))
+                {
+                    cnn.Open();
+                    SqlCommand c = new SqlCommand("SELECT DISTINCT Activity FROM BucketList WHERE UserName=@username AND Date=@dateSelected", cnn);
+                    c.Parameters.AddWithValue("@username", username);
+                    c.Parameters.AddWithValue("@dateSelected", dateSelected);
+                    using (SqlDataReader dr = c.ExecuteReader())
+                    {
+                        while (dr.Read())
+                        {
+                            selectedDayEvents.Add(dr[0].ToString());
+                        }
+                    }
+                }
+
+                for (int i = 0; i < selectedDayEvents.Count; i++)
+                {
+                    dis += selectedDayEvents[i] + "\n";
+                }
+
+                MessageBox.Show("The event(s) for the selected day:" + "\n" + dis, "Information");
+                selectedDayEvents.Clear();
+                dis = "";
             }
         }
 
+        /*
+         * Various funtions allow closing, maximizing, etc. capabilities of window
+         */
         private void CommandBinding_CanExecute(object sender, CanExecuteRoutedEventArgs e)
         {
             e.CanExecute = true;
@@ -113,6 +222,9 @@ namespace WhatchaDoin
             }
         }
 
+        /*
+         * Navigation links and keeps window size consistent among windows
+         */
         private void ListViewMenu_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             switch (((ListViewItem)((ListView)sender).SelectedItem).Name)
@@ -212,6 +324,9 @@ namespace WhatchaDoin
             }
         }
 
+        /*
+         * calls functions to display highlighted events on calendar
+         */
         private void calendarButton_Loaded(object sender, EventArgs e)
         {
             CalendarDayButton button = (CalendarDayButton)sender;
@@ -241,20 +356,76 @@ namespace WhatchaDoin
             HighlightDay(button, date);
         }
 
-        private void Browser_OnFrameLoadStart(object sender, FrameLoadStartEventArgs e)
+        /*
+         * sets web browser zoom size 
+         */
+        private void ChromiumWebBrowser_FrameLoadStart(object sender, FrameLoadStartEventArgs e)
         {
             ChromiumWebBrowser.SetZoomLevel(-15.0);
+        }
+
+        /*
+         * sets web browser zoom size 
+         */
+        private void ChromiumWebBrowser1_FrameLoadStart(object sender, FrameLoadStartEventArgs e)
+        {
             ChromiumWebBrowser1.SetZoomLevel(-15.0);
+        }
+
+        /*
+         * sets web browser zoom size 
+         */
+        private void ChromiumWebBrowser2_FrameLoadStart(object sender, FrameLoadStartEventArgs e)
+        {
             ChromiumWebBrowser2.SetZoomLevel(-10.0);
+        }
+
+        /*
+         * sets web browser zoom size 
+         */
+        private void ChromiumWebBrowser3_FrameLoadStart(object sender, FrameLoadStartEventArgs e)
+        {
             ChromiumWebBrowser3.SetZoomLevel(-10.0);
         }
 
+        /*
+         * determines if grid values will be displayed based on privacy settings
+         */
         private void showEvents(object sender, RoutedEventArgs e)
         {
-            FillDataGrid();
+            if (privacySetting().Equals("Public"))
+            {
+                fillEvents();
+            }
+            else if (privacySetting().Equals("Friends"))
+            {
+                if (txtSearch.Text == username)
+                {
+                    fillEvents();
+                }
+                else if (privacySettingFriends() == true)
+                {
+                    fillEvents();
+                }
+                else
+                {
+                    MessageBox.Show("Aren't friends");
+                }
+            }
+            else if (privacySetting().Equals("Private") && txtSearch.Text == username)
+            {
+                fillEvents();
+            }
+            else
+            {
+                MessageBox.Show("Privacy Restricted");
+            }
         }
 
-        private void FillDataGrid()
+        /*
+         * fills events grid
+         */
+        private void fillEvents()
         {
             grdFollower.Visibility = Visibility.Collapsed;
             grdBucketlist.Visibility = Visibility.Visible;
@@ -263,7 +434,7 @@ namespace WhatchaDoin
             string searchedUser = txtSearch.Text;
 
             String CmdString = string.Empty;
-            using (SqlConnection cnn = new SqlConnection(@"Data Source=(localdb)\MSSQLLocalDB; Initial Catalog=LoginDB; Integrated Security=True;"))
+            using (SqlConnection cnn = new SqlConnection(sqlConnectionString))
             {
                 /*
                  Limits distinct values as compared to 
@@ -282,6 +453,9 @@ namespace WhatchaDoin
             }
         }
 
+        /*
+         * reinstates watermark when textbox is empty or displays textbox when value is entered
+         */
         private void txtSearch_LostFocus(object sender, RoutedEventArgs e)
         {
             if (string.IsNullOrEmpty(txtSearch.Text))
@@ -291,6 +465,9 @@ namespace WhatchaDoin
             }
         }
 
+        /*
+         * focuses and makes the textbox visible when watermark box is clicked
+         */
         private void txtSearchWatermark_GotFocus(object sender, RoutedEventArgs e)
         {
             txtSearchWatermark.Visibility = Visibility.Collapsed;
@@ -298,7 +475,44 @@ namespace WhatchaDoin
             txtSearch.Focus();
         }
 
+        /*
+         * determines if grid values will be displayed based on privacy settings
+         */
         private void showFollowers(object sender, RoutedEventArgs e)
+        {
+            if (privacySetting().Equals("Public"))
+            {
+                fillFollowers();
+            }
+            else if (privacySetting().Equals("Friends"))
+            {
+                if (txtSearch.Text == username)
+                {
+                    fillFollowers();
+                }
+                else if (privacySettingFriends() == true)
+                {
+                    fillFollowers();
+                }
+                else
+                {
+                    MessageBox.Show("Aren't friends");
+                }
+            }
+            else if (privacySetting().Equals("Private") && txtSearch.Text == username)
+            {
+                fillFollowers();
+            }
+            else
+            {
+                MessageBox.Show("Privacy Restricted");
+            }
+        }
+
+        /*
+         * fills followers grid
+         */
+        private void fillFollowers()
         {
             grdFollower.Visibility = Visibility.Visible;
             grdBucketlist.Visibility = Visibility.Collapsed;
@@ -307,7 +521,7 @@ namespace WhatchaDoin
             string searchedUser = txtSearch.Text;
 
             String CmdString = string.Empty;
-            using (SqlConnection cnn = new SqlConnection(@"Data Source=(localdb)\MSSQLLocalDB; Initial Catalog=LoginDB; Integrated Security=True;"))
+            using (SqlConnection cnn = new SqlConnection(sqlConnectionString))
             {
                 CmdString = "SELECT DISTINCT Follower FROM Friends WHERE UserName=@username AND Follower IS NOT NULL";
 
@@ -320,7 +534,11 @@ namespace WhatchaDoin
 
             }
         }
-        private void showFollowing(object sender, RoutedEventArgs e)
+
+        /*
+        * fills following grid
+        */
+        private void fillFollowing()
         {
             grdFollower.Visibility = Visibility.Collapsed;
             grdBucketlist.Visibility = Visibility.Collapsed;
@@ -329,7 +547,7 @@ namespace WhatchaDoin
             string searchedUser = txtSearch.Text;
 
             String CmdString = string.Empty;
-            using (SqlConnection cnn = new SqlConnection(@"Data Source=(localdb)\MSSQLLocalDB; Initial Catalog=LoginDB; Integrated Security=True;"))
+            using (SqlConnection cnn = new SqlConnection(sqlConnectionString))
             {
                 CmdString = "SELECT DISTINCT Following FROM Friends WHERE UserName=@username AND Following IS NOT NULL";
 
@@ -340,6 +558,40 @@ namespace WhatchaDoin
                 sda.Fill(dt);
                 grdFollowing.ItemsSource = dt.DefaultView;
 
+            }
+        }
+
+        /*
+         * determines if grid values will be displayed based on privacy settings
+         */
+        private void showFollowing(object sender, RoutedEventArgs e)
+        {
+            if (privacySetting().Equals("Public"))
+            {
+                fillFollowing();
+            }
+            else if (privacySetting().Equals("Friends"))
+            {
+                if (txtSearch.Text == username)
+                {
+                    fillFollowing();
+                }
+                else if (privacySettingFriends() == true)
+                {
+                    fillFollowing();
+                }
+                else
+                {
+                    MessageBox.Show("Aren't friends");
+                }
+            }
+            else if (privacySetting().Equals("Private") && txtSearch.Text == username)
+            {
+                fillFollowing();
+            }
+            else
+            {
+                MessageBox.Show("Privacy Restricted");
             }
         }
     }

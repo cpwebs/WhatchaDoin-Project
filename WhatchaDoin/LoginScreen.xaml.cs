@@ -30,14 +30,16 @@ namespace WhatchaDoin
             InitializeComponent();
         }
 
-        
+        //username of user
         private string fname;
         public string username
         {
             get { return fname; }
             set { fname = value; }
         }
-        
+        /*
+         * checks credentials of user being logged in and directs if successful to homepage
+         */
         private void btnSubmit_Click(object sender, RoutedEventArgs e)
         {
             SqlConnection sqlCon = new SqlConnection(@"Data Source=(localdb)\MSSQLLocalDB; Initial Catalog=LoginDB; Integrated Security=True;");
@@ -72,6 +74,10 @@ namespace WhatchaDoin
                 sqlCon.Close();
             }
         }
+
+        /*
+         * directs to register page
+         */
         private void btnRegister_Click(object sender, RoutedEventArgs e)
         {
             RegisterScreen register = new RegisterScreen();
@@ -79,6 +85,9 @@ namespace WhatchaDoin
             this.Close();
         }
 
+        /*
+         * Various funtions allow closing, maximizing, etc. capabilities of window
+         */
         private void CommandBinding_CanExecute(object sender, CanExecuteRoutedEventArgs e)
         {
             e.CanExecute = true;

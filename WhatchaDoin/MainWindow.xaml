@@ -50,6 +50,7 @@
                 </Setter>
             </Style>
 
+            <!--Override default calendar values to stretch dates and fill appropriately-->
             <Style TargetType="CalendarDayButton">
                 <Setter Property="Margin"  Value="6,7,6,7"/>
                 <Setter Property="FontSize" Value="14"/>
@@ -142,16 +143,16 @@
             </Grid>
 
             <!--Profile Stats Column-->
-            <Viewbox Grid.Column="0" Grid.Row="0" Margin="75,0,0,20" HorizontalAlignment="Left" VerticalAlignment="Top">
+            <Viewbox Grid.Column="0" Grid.Row="0" Margin="65,0,0,20" HorizontalAlignment="Left" VerticalAlignment="Top">
                 <StackPanel Orientation="Vertical">
                     <Label Content="Profile Stats" Foreground="#FFFDF2" FontWeight="Bold" FontSize="6" Margin="0,0,0,-3"/>
                     <Separator Height=".2" VerticalAlignment="Top" Margin="2,0,2,0"/>
-                    <Label Name="lblEvents" Content="Total Events: " FontSize="3" Foreground="#FFFDF2" Margin="0,2,0,0"/>
-                    <Label Name="lblCompleted" Content="Completed: " FontSize="3" Foreground="#FFFDF2" Margin="0,2,0,0"/>
-                    <Label Name="lblAdventure" Content="Next Adventure: " FontSize="3" Foreground="#FFFDF2" Margin="0,2,0,0"/>
-                    <Label Name="lblFriends" Content="Friends: " FontSize="3" Foreground="#FFFDF2" Margin="0,2,0,0"/>
-                    <Label Name="lblFollowers" Content="Followers :" FontSize="3" Foreground="#FFFDF2" Margin="0,2,0,0"/>
-                    <Label Name="lblFollowing" Content="Following: " FontSize="3" Foreground="#FFFDF2" Margin="0,2,0,0"/>
+                    <Label Name="lblEvents" Content="Total Events: " FontSize="3.3" Foreground="#FFFDF2" Margin="0,2,0,0"/>
+                    <Label Name="lblCompleted" Content="Completed: " FontSize="3.3" Foreground="#FFFDF2" Margin="0,2,0,0"/>
+                    <Label Name="lblAdventure" Content="Next Adventure: " FontSize="3.3" Foreground="#FFFDF2" Margin="0,2,0,0"/>
+                    <Label Name="lblFriends" Content="Friends: " FontSize="3.3" Foreground="#FFFDF2" Margin="0,2,0,0"/>
+                    <Label Name="lblFollowers" Content="Followers :" FontSize="3.3" Foreground="#FFFDF2" Margin="0,2,0,0"/>
+                    <Label Name="lblFollowing" Content="Following: " FontSize="3.3" Foreground="#FFFDF2" Margin="0,2,0,0"/>
                 </StackPanel>
             </Viewbox>
 
@@ -171,7 +172,6 @@
             </Grid>
 
             <GridSplitter Grid.Column="3" Grid.Row="0" Width="5" Margin="0,25,0,25" HorizontalAlignment="Stretch" ResizeDirection="Columns" ToolTip="Drag left-right to resize" ResizeBehavior="BasedOnAlignment"/>
-
 
             <!--Event Details Column-->
             <ScrollViewer Grid.Column="4" Grid.Row="0" Margin="15,45,0,20" VerticalAlignment="Top">
@@ -211,7 +211,7 @@
                         </DataGrid.CellStyle>
                     </DataGrid>
                     <Label Content="Date" Foreground="#FFFDF2" FontWeight="Bold" FontSize="15" HorizontalAlignment="Center" Margin="0,25,0,0"/>
-                    <TextBox x:Name="dateTxtBox" Background="#FFF1BE" Height="30" Width="300" Margin="15,5,15,0" IsReadOnly="True"/>
+                    <TextBox x:Name="dateTxtBox" Background="#FFF1BE" Height="30"  Margin="15,5,15,0" IsReadOnly="True" BorderThickness="1" BorderBrush="#545d6a"/>
                     <Label Content="Time" Foreground="#FFFDF2" FontWeight="Bold" FontSize="15" HorizontalAlignment="Center" Margin="0,25,0,0"/>
                     <DataGrid x:Name="grdTimeSet" AutoGenerateColumns="False" Height="50"  Margin="15,5,15,0" HeadersVisibility="None" HorizontalScrollBarVisibility="Hidden" Background="#FFF1BE" RowBackground="#FFFDF2" AlternatingRowBackground="#FFF1BE" IsReadOnly="True" CanUserAddRows="False" CanUserDeleteRows="False" BorderThickness="1" BorderBrush="#545d6a">
                         <!--Display Only Time and Format with AM/PM-->

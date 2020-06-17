@@ -26,14 +26,32 @@ namespace WhatchaDoin
 
     public partial class MainWindow : Window
     {
+        //future dates of events
         private List<DateTime> nextDates = new List<DateTime>();
+
+        //all event dates which are highlighted on calendar
         private List<DateTime> highlightedDates = new List<DateTime>();
+
+        //all events of user
         private List<String> allEvents = new List<String>();
+
+        //all friends of user
         private List<String> allFriends = new List<String>();
+
+        //all following of user
         private List<String> allFollowing = new List<String>();
+
+        //all followers of user
         private List<String> allFollowers = new List<String>();
+
+        //username of user currently using application
         private string username;
+
+        //number of events that have been completed
         private int completed = 0;
+
+        //SQL Server connection string
+        string sqlConnectionString = @"Data Source=(localdb)\MSSQLLocalDB; Initial Catalog=LoginDB; Integrated Security=True;";
 
         public MainWindow(string user)
         {
@@ -60,9 +78,12 @@ namespace WhatchaDoin
             lblFollowing.Content = "Following: " + allFollowing.Count;
         }
 
+        /*
+         * Finds all followers a user has
+         */
         private void retrieveFollowers()
         {
-            using (SqlConnection cnn = new SqlConnection(@"Data Source=(localdb)\MSSQLLocalDB; Initial Catalog=LoginDB; Integrated Security=True;"))
+            using (SqlConnection cnn = new SqlConnection(sqlConnectionString))
             {
                 cnn.Open();
                 SqlCommand c = new SqlCommand("SELECT DISTINCT Follower FROM Friends WHERE UserName=@username AND Follower IS NOT NULL", cnn);
@@ -79,9 +100,12 @@ namespace WhatchaDoin
             }
         }
 
+        /*
+         * Finds all following persons that a user follows
+         */
         private void retrieveFollowing()
         {
-            using (SqlConnection cnn = new SqlConnection(@"Data Source=(localdb)\MSSQLLocalDB; Initial Catalog=LoginDB; Integrated Security=True;"))
+            using (SqlConnection cnn = new SqlConnection(sqlConnectionString))
             {
                 cnn.Open();
                 SqlCommand c = new SqlCommand("SELECT DISTINCT Following FROM Friends WHERE UserName=@username AND Following IS NOT NULL", cnn);
@@ -98,9 +122,12 @@ namespace WhatchaDoin
             }
         }
 
+        /*
+         * Finds all friends that all a user has
+         */
         private void retrieveTotalFriends()
         {
-            using (SqlConnection cnn = new SqlConnection(@"Data Source=(localdb)\MSSQLLocalDB; Initial Catalog=LoginDB; Integrated Security=True;"))
+            using (SqlConnection cnn = new SqlConnection(sqlConnectionString))
             {
                 cnn.Open();
                 SqlCommand c = new SqlCommand("SELECT DISTINCT Friends FROM Friends WHERE UserName=@username AND Friends IS NOT NULL", cnn);
@@ -117,9 +144,12 @@ namespace WhatchaDoin
             }
         }
 
+        /*
+         * Finds all events that a user has made past, present, and future
+         */
         private void retrieveTotalEvents()
         {
-            using (SqlConnection cnn = new SqlConnection(@"Data Source=(localdb)\MSSQLLocalDB; Initial Catalog=LoginDB; Integrated Security=True;"))
+            using (SqlConnection cnn = new SqlConnection(sqlConnectionString))
             {
                 cnn.Open();
                 SqlCommand c = new SqlCommand("SELECT DISTINCT Activity,Date FROM BucketList WHERE UserName=@username", cnn);
@@ -147,6 +177,9 @@ namespace WhatchaDoin
             }
         }
 
+        /*
+         * Finds the next day (in numeric) when an event is planned
+         */
         private int findUpComingDate()
         {
             int ret = int.MaxValue;
@@ -171,9 +204,12 @@ namespace WhatchaDoin
             return ret + 1;
         }
 
+        /*
+         * Gets dates from DB that are in the future of the user
+         */
         private void retrieveDatesToDisplay()
         {
-            using (SqlConnection cnn = new SqlConnection(@"Data Source=(localdb)\MSSQLLocalDB; Initial Catalog=LoginDB; Integrated Security=True;"))
+            using (SqlConnection cnn = new SqlConnection(sqlConnectionString))
             {
                 cnn.Open();
                 SqlCommand c = new SqlCommand("SELECT DISTINCT Activity,Date FROM BucketList WHERE UserName=@username", cnn);
@@ -190,14 +226,16 @@ namespace WhatchaDoin
             }
         }
 
+        /*
+         * Shows and displays the current information for the event when clicked
+         */
         private void selectedDate(object sender, SelectionChangedEventArgs e)
         {
             DateTime dateSelected = Convert.ToDateTime(calendar.SelectedDate);
             if (highlightedDates.Contains(dateSelected))
             {
-                using (SqlConnection cnn = new SqlConnection(@"Data Source=(localdb)\MSSQLLocalDB; Initial Catalog=LoginDB; Integrated Security=True;"))
+                using (SqlConnection cnn = new SqlConnection(sqlConnectionString))
                 {
-                    //"WITH cte AS (SELECT *, ROW_NUMBER() OVER(PARTITION BY Activity ORDER BY Date DESC) AS rn FROM BucketList) SELECT * FROM cte WHERE rn = 1 AND UserName=@username AND Date=@dateSelected"
                     cnn.Open();
                     SqlCommand c = new SqlCommand("WITH cte AS (SELECT *, ROW_NUMBER() OVER(PARTITION BY Activity ORDER BY Date DESC) AS rn FROM BucketList) SELECT * FROM cte WHERE rn = 1 AND UserName=@username AND Date=@dateSelected", cnn);
                     c.Parameters.AddWithValue("@username", username);
@@ -217,12 +255,9 @@ namespace WhatchaDoin
                     grdTimeSet.ItemsSource = dt.DefaultView;
                     grdBudget.ItemsSource = dt.DefaultView;
                     grdReservation.ItemsSource = dt.DefaultView;
-                    
-                    //grdSupplies.ItemsSource = dt.DefaultView;
-                    //grdFriends.ItemsSource = dt.DefaultView;
                 }
 
-                using (SqlConnection cnn = new SqlConnection(@"Data Source=(localdb)\MSSQLLocalDB; Initial Catalog=LoginDB; Integrated Security=True;"))
+                using (SqlConnection cnn = new SqlConnection(sqlConnectionString))
                 {
                     //"WITH cte AS (SELECT *, ROW_NUMBER() OVER(PARTITION BY Activity ORDER BY Date DESC) AS rn FROM BucketList) SELECT * FROM cte WHERE rn = 1 AND UserName=@username AND Date=@dateSelected"
                     cnn.Open();
@@ -235,7 +270,7 @@ namespace WhatchaDoin
                     grdSupplies.ItemsSource = dt.DefaultView;
                 }
 
-                using (SqlConnection cnn = new SqlConnection(@"Data Source=(localdb)\MSSQLLocalDB; Initial Catalog=LoginDB; Integrated Security=True;"))
+                using (SqlConnection cnn = new SqlConnection(sqlConnectionString))
                 {
                     //"WITH cte AS (SELECT *, ROW_NUMBER() OVER(PARTITION BY Activity ORDER BY Date DESC) AS rn FROM BucketList) SELECT * FROM cte WHERE rn = 1 AND UserName=@username AND Date=@dateSelected"
                     cnn.Open();
@@ -262,6 +297,9 @@ namespace WhatchaDoin
 
         }
 
+        /*
+         * Various funtions allow closing, maximizing, etc. capabilities of window
+         */
         private void CommandBinding_CanExecute(object sender, CanExecuteRoutedEventArgs e)
         {
             e.CanExecute = true;

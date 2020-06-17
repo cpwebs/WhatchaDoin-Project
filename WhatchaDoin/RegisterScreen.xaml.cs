@@ -24,6 +24,9 @@ namespace WhatchaDoin
             InitializeComponent();
         }
 
+        /*
+         * registers user to DB and application and checks to make sure credentials are valid
+         */
         private void btnSubmitRegister_Click(object sender, RoutedEventArgs e)
         {
             string user = txtUsername.Text;
@@ -74,6 +77,9 @@ namespace WhatchaDoin
             }
         }
 
+        /*
+         * cancels registeration and directs to login page
+         */
         private void btnSubmitCancel_Click(object sender, RoutedEventArgs e)
         {
             LoginScreen login = new LoginScreen();
@@ -81,7 +87,9 @@ namespace WhatchaDoin
             this.Close();
         }
 
-
+        /*
+         * Various funtions allow closing, maximizing, etc. capabilities of window
+         */
         private void CommandBinding_CanExecute(object sender, CanExecuteRoutedEventArgs e)
         {
             e.CanExecute = true;

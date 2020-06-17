@@ -49,6 +49,7 @@
                 </Setter>
             </Style>
 
+            <!--Override default calendar values to stretch dates and fill appropriately-->
             <Style TargetType="CalendarDayButton">
                 <Setter Property="Margin"  Value="6,7,6,7"/>
                 <Setter Property="FontSize" Value="14"/>
@@ -140,8 +141,8 @@
                 </ListView>
             </Grid>
 
-            <!-- <ScrollViewer Grid.Column="0" Grid.Row="0" Margin="55,0,0,20" VerticalAlignment="Top" Background="#75B791">-->
-            <Grid Grid.Column="0" Grid.Row="0" Margin="55,0,0,20" VerticalAlignment="Top" Background="#75B791">
+            <!--Add and Message Friend Column-->
+            <ScrollViewer Grid.Column="0" Grid.Row="0" Margin="55,0,0,20" VerticalAlignment="Top">
                 <Viewbox>
                     <StackPanel Orientation="Vertical" Margin="5,0,0,20" VerticalAlignment="Top">
                         
@@ -152,35 +153,57 @@
                         <TextBox x:Name="txtFriendCode" LostFocus="txtFriendCode_LostFocus" Visibility="Collapsed" Margin="15,5,15,0" Background="White"/>
                         <TextBox x:Name="txtFriendWatermark" GotFocus="txtFriendWatermark_GotFocus" FontSize="12" Foreground="Gray" Text="Enter Friend Code" Margin="15,5,15,0" Background="White"/>
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="15,10,15,0">
-                            <Button Content="Add Friend" Background="White" FontSize="10" Click="addFriend" />
-                            <Button Content="   Follow   " Background="White" FontSize="10"/>
+                            <Button Content="Friend" Background="White" FontSize="10" Click="addFriend" />
+                            <Button Content="Follow" Background="White" FontSize="10" Click="addFollow"/>
                         </StackPanel>
 
                         <Label Content="Send Message" Foreground="#FFFDF2" FontWeight="Bold" FontSize="15" HorizontalAlignment="Center" Margin="0,15,0,0"/>
                         <TextBox x:Name="message" Visibility="Collapsed" LostFocus="message_LostFocus" Margin="15,5,15,0" Height="60" Background="White"/>
-                        <TextBox x:Name="messageWatermark" FontSize="12" GotFocus="messageWatermark_GotFocus" Foreground="Gray" Text="Type Text Here" Margin="15,0,15,0" Height="60" Background="White"/>
+                        <TextBox x:Name="messageWatermark" FontSize="12" GotFocus="messageWatermark_GotFocus" Foreground="Gray" Text="Type Text Here" Margin="15,5,15,0" Height="60" Background="White"/>
                         <Label Content="To" Foreground="#FFFDF2" FontWeight="Bold" FontSize="15" HorizontalAlignment="Center" Margin="0,0,0,0"/>
+                        
                         <TextBox x:Name="recipient" LostFocus="recipient_LostFocus" Visibility="Collapsed" Margin="15,0,15,0"  Background="White"/>
                         <TextBox x:Name="recipientWatermark" GotFocus="recipientWatermark_GotFocus" FontSize="12" Foreground="Gray" Text="Enter User" Margin="15,0,15,0"  Background="White"/>
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10,0,0">
-                            <Button Content="Send" Background="White" FontSize="10"/>
-                            <Button Content="Clear" Background="White" FontSize="10"/>
+                            <Button Content="Send" Background="White" FontSize="10" Click="sendMessage"/>
+                            <Button Content="Clear" Background="White" FontSize="10" Click="clearFields"/>
                         </StackPanel>
 
                         <Label Content="Notifications" Foreground="#FFFDF2" FontWeight="Bold" FontSize="15" HorizontalAlignment="Center" Margin="0,15,0,0"/>
 
-                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10,0,0">
-                            <Button Content="View" Background="White" FontSize="10"/>
-                            <Button Content="Save" Background="White" FontSize="10"/>
-                            <Button Content="Archived" Background="White" FontSize="10"/>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="10,10,10,0">
+                            <Button Content="Details" Background="White" FontSize="10" Click="showMessageDetails" />
+                            <Button Content="Delete" Background="White" FontSize="10" Click="deleteMessage" />
+                        </StackPanel>
+
+
+                            <DataGrid Name="grdMessages" Margin="15,10,15,0" CanUserSortColumns="True" Height="150"  AutoGenerateColumns="False" MinColumnWidth="170" HeadersVisibility="None" HorizontalScrollBarVisibility="Hidden" Background="#FFF1BE" RowBackground="#FFFDF2" AlternatingRowBackground="#FFF1BE" MinRowHeight="40" IsReadOnly="True" CanUserAddRows="False" CanUserDeleteRows="False" BorderThickness="1"  BorderBrush="#545d6a">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Binding="{Binding Message}" />
+                            </DataGrid.Columns>
+                            <DataGrid.CellStyle>
+                                <Style TargetType="DataGridCell"  >
+                                    <Style.Triggers>
+                                        <Trigger Property="IsSelected" Value="True">
+                                            <Setter Property="Background" Value="#75B791"/>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </DataGrid.CellStyle>
+                        </DataGrid>
+
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="10,10,10,0">
+                            <Button Content="Save" Background="White" FontSize="10" Click="saveMessages" />
+                            <Button x:Name="archived" Content="Archived" Background="White" FontSize="10" Click="archivedMessages" />
                         </StackPanel>
 
                     </StackPanel>
                 </Viewbox>
-            </Grid>
+            </ScrollViewer>
 
             <GridSplitter Grid.Column="1" Grid.Row="0" Width="5" Margin="0,25,0,25" HorizontalAlignment="Stretch" ResizeDirection="Columns" ToolTip="Drag left-right to resize" ResizeBehavior="BasedOnAlignment"/>
 
+            <!--Calendar View Column-->
             <Grid Grid.Column="2" Grid.Row="0" Background="#FFF1BE" Margin="0,25,0,25">
                 <Viewbox>
                     <Calendar x:Name="calendar" SelectedDatesChanged="selectedDate" Background="#FFF1BE" IsTodayHighlighted="False">
@@ -195,6 +218,7 @@
 
             <GridSplitter Grid.Column="3" Grid.Row="0" Width="5" Margin="0,25,0,25" HorizontalAlignment="Stretch" ResizeDirection="Columns" ToolTip="Drag left-right to resize" ResizeBehavior="BasedOnAlignment"/>
 
+            <!--Friends View Column-->
             <Grid Grid.Column="4" Grid.Row="0">
                 <DataGrid Name="grdEmployee"  Margin="25,100,25,25" HeadersVisibility="None" ColumnWidth="*" HorizontalScrollBarVisibility="Hidden" Background="#FFF1BE" RowBackground="#FFFDF2" AlternatingRowBackground="#FFF1BE" MinRowHeight="40" CanUserAddRows="False" CanUserDeleteRows="False" BorderThickness="1" BorderBrush="#545d6a">
                     <DataGrid.CellStyle>

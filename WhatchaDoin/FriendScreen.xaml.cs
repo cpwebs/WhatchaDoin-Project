@@ -26,8 +26,17 @@ namespace WhatchaDoin
     public partial class FriendScreen : Window
 
     {
-        private List<DateTime> significantDates = new List<DateTime>();
+        //all event dates which are highlighted on calendar
+        private List<DateTime> highlightedDates = new List<DateTime>();
+
+        //username of user currently using application
         private string username;
+
+        //SQL Server connection string
+        string sqlConnectionString = @"Data Source=(localdb)\MSSQLLocalDB; Initial Catalog=LoginDB; Integrated Security=True;";
+
+        //lists events on that selected day
+        private List<String> selectedDayEvents = new List<String>();
 
         public FriendScreen(string user)
         {
@@ -36,32 +45,41 @@ namespace WhatchaDoin
             FillDataGrid();
             retrieveDatesToDisplay();
             StateChanged += MainWindowStateChangeRaised;
+            viewMessages();
         }
 
+        /*
+         * Gets dates from DB that are in the future of the user
+         */
         private void retrieveDatesToDisplay()
         {
-            using (SqlConnection cnn = new SqlConnection(@"Data Source=(localdb)\MSSQLLocalDB; Initial Catalog=LoginDB; Integrated Security=True;"))
+            using (SqlConnection cnn = new SqlConnection(sqlConnectionString))
             {
                 cnn.Open();
-                using (SqlCommand c = new SqlCommand("SELECT Date from BucketList", cnn))
+                using (SqlCommand c = new SqlCommand("SELECT Date from BucketList WHERE UserName = @user", cnn))
                 {
+                    c.Parameters.AddWithValue("@user", username);
+
                     using (SqlDataReader dr = c.ExecuteReader())
                     {
                         while (dr.Read())
                         {
-                            significantDates.Add(Convert.ToDateTime(dr[0]));
+                            highlightedDates.Add(Convert.ToDateTime(dr[0]));
                         }
                     }
                 }
             }
         }
 
+        /*
+         * Fills friend grid with friends of user
+         */
         private void FillDataGrid()
         {
             String CmdString = string.Empty;
-            using (SqlConnection cnn = new SqlConnection(@"Data Source=(localdb)\MSSQLLocalDB; Initial Catalog=LoginDB; Integrated Security=True;"))
+            using (SqlConnection cnn = new SqlConnection(sqlConnectionString))
             {
-                CmdString = "SELECT Friends FROM Friends WHERE UserName=@username AND Friends IS NOT NULL";
+                CmdString = "SELECT DISTINCT Friends FROM Friends WHERE UserName=@username AND Friends IS NOT NULL";
                 SqlCommand cmd = new SqlCommand(CmdString, cnn);
                 cmd.Parameters.AddWithValue("@username", username);
                 SqlDataAdapter sda = new SqlDataAdapter(cmd);
@@ -71,20 +89,44 @@ namespace WhatchaDoin
             }
         }
 
+        /*
+         * Shows and displays events of selected day when clicked on calendar
+         */
         private void selectedDate(object sender, SelectionChangedEventArgs e)
         {
-            /*
-            if (MessageBox.Show("Do you want to add an event?", "Confirmation", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+            String dis = "";
+            DateTime dateSelected = Convert.ToDateTime(calendar.SelectedDate);
+            if (highlightedDates.Contains(dateSelected))
             {
-                // add event
+                using (SqlConnection cnn = new SqlConnection(sqlConnectionString))
+                {
+                    cnn.Open();
+                    SqlCommand c = new SqlCommand("SELECT DISTINCT Activity FROM BucketList WHERE UserName=@username AND Date=@dateSelected", cnn);
+                    c.Parameters.AddWithValue("@username", username);
+                    c.Parameters.AddWithValue("@dateSelected", dateSelected);
+                    using (SqlDataReader dr = c.ExecuteReader())
+                    {
+                        while (dr.Read())
+                        {
+                            selectedDayEvents.Add(dr[0].ToString());
+                        }
+                    }
+                }
+
+                for (int i = 0; i < selectedDayEvents.Count; i++)
+                {
+                    dis += selectedDayEvents[i] + "\n";
+                }
+
+                MessageBox.Show("The event(s) for the selected day:" + "\n" + dis, "Information");
+                selectedDayEvents.Clear();
+                dis = "";
             }
-            else
-            {
-                // cancel
-            }
-            */
         }
 
+        /*
+         * Various funtions allow closing, maximizing, etc. capabilities of window
+         */
         private void CommandBinding_CanExecute(object sender, CanExecuteRoutedEventArgs e)
         {
             e.CanExecute = true;
@@ -131,6 +173,9 @@ namespace WhatchaDoin
             }
         }
 
+        /*
+         * Navigation links and keeps window size consistent among windows
+         */
         private void ListViewMenu_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             switch (((ListViewItem)((ListView)sender).SelectedItem).Name)
@@ -230,6 +275,9 @@ namespace WhatchaDoin
             }
         }
 
+        /*
+         * calls functions to display highlighted events on calendar
+         */
         private void calendarButton_Loaded(object sender, EventArgs e)
         {
             CalendarDayButton button = (CalendarDayButton)sender;
@@ -238,14 +286,20 @@ namespace WhatchaDoin
             button.DataContextChanged += new DependencyPropertyChangedEventHandler(calendarButton_DataContextChanged);
         }
 
+        /*
+         * highlights event on calendar
+         */
         private void HighlightDay(CalendarDayButton button, DateTime date)
         {
-            if (significantDates.Contains(date))
+            if (highlightedDates.Contains(date))
                 button.Background = (SolidColorBrush)new BrushConverter().ConvertFromString("#75B791");
             else
                 button.Background = (SolidColorBrush)new BrushConverter().ConvertFromString("#FFF1BE");
         }
 
+        /*
+         * data context change event on calendar
+         */
         private void calendarButton_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
             CalendarDayButton button = (CalendarDayButton)sender;
@@ -253,12 +307,9 @@ namespace WhatchaDoin
             HighlightDay(button, date);
         }
 
-        private void addFriend(object sender, RoutedEventArgs e)
-        {
-            
-            
-        }
-
+        /*
+         * focuses and makes the textbox visible when watermark box is clicked
+         */
         private void txtFriendWatermark_GotFocus(object sender, RoutedEventArgs e)
         {
             txtFriendWatermark.Visibility = Visibility.Collapsed;
@@ -266,6 +317,9 @@ namespace WhatchaDoin
             txtFriendCode.Focus();
         }
 
+        /*
+         * reinstates watermark when textbox is empty or displays textbox when value is entered
+         */
         private void txtFriendCode_LostFocus(object sender, RoutedEventArgs e)
         {
             if(string.IsNullOrEmpty(txtFriendCode.Text))
@@ -275,6 +329,9 @@ namespace WhatchaDoin
             }
         }
 
+        /*
+         * reinstates watermark when textbox is empty or displays textbox when value is entered
+         */
         private void txtSearch_LostFocus(object sender, RoutedEventArgs e)
         {
             if (string.IsNullOrEmpty(txtSearch.Text))
@@ -285,6 +342,9 @@ namespace WhatchaDoin
             
         }
 
+        /*
+         * focuses and makes the textbox visible when watermark box is clicked
+         */
         private void txtSearchWatermark_GotFocus(object sender, RoutedEventArgs e)
         {
             txtSearchWatermark.Visibility = Visibility.Collapsed;
@@ -292,6 +352,9 @@ namespace WhatchaDoin
             txtSearch.Focus();
         }
 
+        /*
+         * reinstates watermark when textbox is empty or displays textbox when value is entered
+         */
         private void recipient_LostFocus(object sender, RoutedEventArgs e)
         {
             if (string.IsNullOrEmpty(recipient.Text))
@@ -301,6 +364,9 @@ namespace WhatchaDoin
             }
         }
 
+        /*
+         * focuses and makes the textbox visible when watermark box is clicked
+         */
         private void recipientWatermark_GotFocus(object sender, RoutedEventArgs e)
         {
             recipientWatermark.Visibility = Visibility.Collapsed;
@@ -308,6 +374,9 @@ namespace WhatchaDoin
             recipient.Focus();
         }
 
+        /*
+         * reinstates watermark when textbox is empty or displays textbox when value is entered
+         */
         private void message_LostFocus(object sender, RoutedEventArgs e)
         {
             if (string.IsNullOrEmpty(message.Text))
@@ -317,11 +386,348 @@ namespace WhatchaDoin
             }
         }
 
+        /*
+         * focuses and makes the textbox visible when watermark box is clicked
+         */
         private void messageWatermark_GotFocus(object sender, RoutedEventArgs e)
         {
             messageWatermark.Visibility = Visibility.Collapsed;
             message.Visibility = Visibility.Visible;
             message.Focus();
+        }
+
+        /*
+         * adds friend to DB if credentials match
+         */
+        private void addFriend(object sender, RoutedEventArgs e)
+        {
+          if(isValid())
+            {
+                if(isFriendCode())
+                {
+                    string insStmt = "INSERT INTO Friends (UserName, Friends) VALUES(@user, @friends);";
+
+                    using (SqlConnection cnn = new SqlConnection(sqlConnectionString))
+                    {
+                        cnn.Open();
+                        SqlCommand insCmd = new SqlCommand(insStmt, cnn);
+                        insCmd.Parameters.AddWithValue("@user", username);
+                        insCmd.Parameters.AddWithValue("@friends", txtSearch.Text);
+                        insCmd.ExecuteNonQuery();
+                    }
+
+                    insStmt = "INSERT INTO Friends (UserName, Friends) VALUES(@user, @friends);";
+
+                    using (SqlConnection cnn = new SqlConnection(sqlConnectionString))
+                    {
+                        cnn.Open();
+                        SqlCommand insCmd = new SqlCommand(insStmt, cnn);
+                        // use sqlParameters to prevent sql injection!
+                        // values are retrieve from variables defined in program
+                        insCmd.Parameters.AddWithValue("@user", txtSearch.Text);
+                        insCmd.Parameters.AddWithValue("@friends", username);
+                        insCmd.ExecuteNonQuery();
+                    }
+
+                    FillDataGrid();
+                    txtSearch.Text = "";
+                    txtFriendCode.Text = "";
+                    MessageBox.Show("Now Friends!");
+                }
+                else
+                {
+                    MessageBox.Show("Wrong Friend Code");
+                }
+            }
+          else
+            {
+                MessageBox.Show("User Doesn't Exist");
+            }
+        }
+
+        /*
+         * checks if user exists
+         */
+        public bool isValid()
+        {
+            using (SqlConnection cnn = new SqlConnection(sqlConnectionString))
+            {
+                cnn.Open();
+                SqlCommand c = new SqlCommand("SELECT UserName FROM Users WHERE UserName = @user", cnn);
+                c.Parameters.AddWithValue("@user", txtSearch.Text);
+
+                using (SqlDataReader dr = c.ExecuteReader())
+                {
+                    if (dr.Read())
+                    {
+                        return true;
+
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+            }
+        }
+
+        /*
+         * checks if friend code matches
+         */
+        public bool isFriendCode()
+        {
+            string code = "";
+
+            using (SqlConnection cnn = new SqlConnection(sqlConnectionString))
+            {
+                cnn.Open();
+                SqlCommand c = new SqlCommand("SELECT FriendCode FROM Users WHERE UserName = @user", cnn);
+
+                c.Parameters.AddWithValue("@user", txtSearch.Text);
+                c.Parameters.AddWithValue("@code", txtFriendCode.Text);
+
+                using (SqlDataReader dr = c.ExecuteReader())
+                {
+                    if (dr.Read())
+                    {
+                        code = dr[0].ToString();
+
+                        if (code.Equals(txtFriendCode.Text))
+                        {
+                            return true;
+                        }
+                        else
+                        {
+                            return false;
+                        }
+                    }
+                    else
+                    {
+                        MessageBox.Show("User Doesn't Exist");
+                        return false;
+                    }
+                }
+            }
+        }
+
+        /*
+         * add follow to user
+         */
+        private void addFollow(object sender, RoutedEventArgs e)
+        {
+            if (isValid())
+            {
+                string insStmt = "INSERT INTO Friends (UserName, Following) VALUES(@user, @following);";
+
+                using (SqlConnection cnn = new SqlConnection(sqlConnectionString))
+                {
+                    cnn.Open();
+                    SqlCommand insCmd = new SqlCommand(insStmt, cnn);
+                    // use sqlParameters to prevent sql injection!
+                    // values are retrieve from variables defined in program
+                    insCmd.Parameters.AddWithValue("@user", username);
+                    insCmd.Parameters.AddWithValue("@following", txtSearch.Text);
+                    insCmd.ExecuteNonQuery();
+                }
+
+                insStmt = "INSERT INTO Friends (UserName, Follower) VALUES(@user, @follower);";
+
+                using (SqlConnection cnn = new SqlConnection(sqlConnectionString))
+                {
+                    cnn.Open();
+                    SqlCommand insCmd = new SqlCommand(insStmt, cnn);
+                    // use sqlParameters to prevent sql injection!
+                    // values are retrieve from variables defined in program
+                    insCmd.Parameters.AddWithValue("@user", txtSearch.Text);
+                    insCmd.Parameters.AddWithValue("@follower", username);
+                    insCmd.ExecuteNonQuery();
+                }
+
+                txtSearch.Text = "";
+                MessageBox.Show("Now Following!");
+            }
+            else {
+                MessageBox.Show("User Doesn't Exist");
+            }
+        }
+
+        /*
+         * sends message to user
+         */
+        private void sendMessage(object sender, RoutedEventArgs e)
+        {
+            using (SqlConnection cnn = new SqlConnection(sqlConnectionString))
+            {
+                cnn.Open();
+                SqlCommand c = new SqlCommand("SELECT UserName FROM Users WHERE UserName = @user", cnn);
+                c.Parameters.AddWithValue("@user", recipient.Text);
+
+                using (SqlDataReader dr = c.ExecuteReader())
+                {
+                    if (dr.Read())
+                    {
+
+                        string insStmt = "INSERT INTO Friends (UserName, Message, Recipient, ReadMessage, TimeSent) VALUES(@user, @message, @recipient, 'Sent', @time);";
+
+                        using (SqlConnection cnn2 = new SqlConnection(sqlConnectionString))
+                        {
+                            cnn2.Open();
+                            SqlCommand insCmd = new SqlCommand(insStmt, cnn2);
+                            insCmd.Parameters.AddWithValue("@user", username);
+                            insCmd.Parameters.AddWithValue("@message", message.Text);
+                            insCmd.Parameters.AddWithValue("@recipient", recipient.Text);
+                            insCmd.Parameters.AddWithValue("@time", DateTime.Now);
+                            insCmd.ExecuteNonQuery();
+                        }
+                        MessageBox.Show("Message Successfully Sent");
+
+                    }
+                    else
+                    {
+                        MessageBox.Show("User Doesn't Exist");
+                    }
+                }
+            }
+        }
+
+        /*
+         * clear message fields
+         */
+        private void clearFields(object sender, RoutedEventArgs e)
+        {
+            message.Text = "";
+            recipient.Text = "";
+        }
+
+        /*
+         * view messages sent to user
+         */
+        public void viewMessages()
+        {
+            string CmdString = string.Empty;
+            using (SqlConnection cnn = new SqlConnection(sqlConnectionString))
+            {
+                CmdString = "SELECT * FROM Friends WHERE Recipient = @username AND ReadMessage = 'Sent'";
+
+                SqlCommand cmd = new SqlCommand(CmdString, cnn);
+                cmd.Parameters.AddWithValue("@username", username);
+                SqlDataAdapter sda = new SqlDataAdapter(cmd);
+                DataTable dt = new DataTable("Activity");
+                sda.Fill(dt);
+                grdMessages.ItemsSource = dt.DefaultView;
+            }
+        }
+
+        /*
+         * saved messages by user
+         */
+        private void saveMessages(object sender, RoutedEventArgs e)
+        {
+            DataGrid grid = grdMessages as DataGrid;
+            DataGridRow dgr = grid.ItemContainerGenerator.ContainerFromItem(grid.SelectedItem) as DataGridRow;
+
+            if (dgr != null)
+            {
+
+                DataRowView dr = (DataRowView)dgr.Item;
+
+                string message = dr[4].ToString();
+                string sendUser = dr[0].ToString();
+
+                String insStmt = "UPDATE Friends SET ReadMessage = 'Saved' WHERE Recipient = @user AND Message = @message AND UserName = @sendUser";
+
+                using (SqlConnection cnn = new SqlConnection(sqlConnectionString))
+                {
+                    cnn.Open();
+                    SqlCommand insCmd = new SqlCommand(insStmt, cnn);
+                    // use sqlParameters to prevent sql injection!
+                    // values are retrieve from variables defined in program
+                    insCmd.Parameters.AddWithValue("@user", username);
+                    insCmd.Parameters.AddWithValue("@message", message);
+                    insCmd.Parameters.AddWithValue("@sendUser", sendUser);
+
+                    insCmd.ExecuteNonQuery();
+                }
+
+                MessageBox.Show("Message Saved");
+            }
+        }
+
+        /*
+         * view saved messages by user
+         */
+        private void archivedMessages(object sender, RoutedEventArgs e)
+        {
+            if (archived.Content.Equals("Archived"))
+            {
+                string CmdString = string.Empty;
+                using (SqlConnection cnn = new SqlConnection(sqlConnectionString))
+                {
+                    CmdString = "SELECT * FROM Friends WHERE Recipient = @username AND ReadMessage = 'Saved'";
+
+                    SqlCommand cmd = new SqlCommand(CmdString, cnn);
+                    cmd.Parameters.AddWithValue("@username", username);
+                    SqlDataAdapter sda = new SqlDataAdapter(cmd);
+                    DataTable dt = new DataTable("Activity");
+                    sda.Fill(dt);
+                    grdMessages.ItemsSource = dt.DefaultView;
+                }
+                archived.Content = "Inbox";
+            }
+            else if(archived.Content.Equals("Inbox"))
+            {
+                viewMessages();
+                archived.Content = "Archived";
+            }
+        }
+
+        /*
+         * view messages details from message
+         */
+        private void showMessageDetails(object sender, RoutedEventArgs e)
+        {
+            DataGrid grid = grdMessages as DataGrid;
+            DataGridRow dgr = grid.ItemContainerGenerator.ContainerFromItem(grid.SelectedItem) as DataGridRow;
+
+            if (dgr != null)
+            {
+                DataRowView dr = (DataRowView)dgr.Item;
+                MessageBox.Show("From: " + dr[0].ToString() + "\n" + "Date: " + Convert.ToDateTime(dr[7]).ToLongDateString() + "\n" + "Time: " + Convert.ToDateTime(dr[7]).ToShortTimeString());
+            }
+        }
+
+        /*
+         * deletes messages by user
+         */
+        private void deleteMessage(object sender, RoutedEventArgs e)
+        {
+            DataGrid grid = grdMessages as DataGrid;
+            DataGridRow dgr = grid.ItemContainerGenerator.ContainerFromItem(grid.SelectedItem) as DataGridRow;
+
+            if (dgr != null)
+            {
+                DataRowView dr = (DataRowView)dgr.Item;
+
+                string message = dr[4].ToString();
+                string sendUser = dr[0].ToString();
+
+                String insStmt = "UPDATE Friends SET ReadMessage = 'Deleted' WHERE Recipient = @user AND Message = @message AND UserName = @sendUser"; ;
+
+                using (SqlConnection cnn = new SqlConnection(sqlConnectionString))
+                {
+                    cnn.Open();
+                    SqlCommand insCmd = new SqlCommand(insStmt, cnn);
+                    // use sqlParameters to prevent sql injection!
+                    // values are retrieve from variables defined in program
+                    insCmd.Parameters.AddWithValue("@user", username);
+                    insCmd.Parameters.AddWithValue("@message", message);
+                    insCmd.Parameters.AddWithValue("@sendUser", sendUser);
+
+                    insCmd.ExecuteNonQuery();
+                }
+
+                viewMessages();
+            }
         }
     }
 }

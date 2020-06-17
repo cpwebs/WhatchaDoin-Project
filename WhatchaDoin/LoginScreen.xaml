@@ -62,6 +62,7 @@
                             Command="{x:Static SystemCommands.CloseWindowCommand}" RenderTransformOrigin="0.92,0.398" Width="36"/>
                 </StackPanel>
             </Grid>
+            <!--Fields of logging in user-->
             <Border Background="#75B791" CornerRadius="20" Margin="30, 30, 30, 30">
                 <StackPanel Margin="30">
                     <Label Content="Login" Foreground="#FFF1BE" FontSize="25" HorizontalAlignment="Center"/>
